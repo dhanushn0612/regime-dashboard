@@ -1,0 +1,35 @@
+name: Daily Regime Update
+
+on:
+  schedule:
+    - cron: '30 4 * * 1-5'   # Runs at 10:00 AM IST (4:30 UTC), Mon-Fri
+  workflow_dispatch:           # Also lets you run it manually from GitHub
+
+jobs:
+  update-regime:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas numpy
+
+      - name: Run regime classifier
+        run: |
+          python data_pipeline/run_classifier.py
+
+      - name: Commit updated data
+        run: |
+          git config user.name "regime-bot"
+          git config user.email "bot@regime.app"
+          git add public/regime_current.json public/regime_history.json
+          git diff --staged --quiet || git commit -m "📊 Regime update $(date +'%Y-%m-%d')"
+          git push
