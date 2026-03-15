@@ -1,14 +1,8 @@
 """
-Daily Regime Classifier Runner
-================================
-This script is called by GitHub Actions every weekday morning.
-It downloads fresh market data, runs the classifier, and writes
-two JSON files into /public — which Vercel serves to the dashboard.
-
-NO manual intervention needed after initial setup.
+Daily Regime Classifier Runner — FIXED for yfinance multi-level columns
+and pandas Series ambiguity on all platforms including GitHub Actions.
 """
 
-import sys
 import os
 import json
 import pandas as pd
@@ -17,20 +11,32 @@ import yfinance as yf
 import warnings
 from datetime import datetime, timedelta
 from dataclasses import dataclass, asdict
-from typing import Optional
 
 warnings.filterwarnings('ignore')
 
-# ── OUTPUT PATHS (relative to repo root) ─────────────────────────────
-OUTPUT_DIR     = os.path.join(os.path.dirname(__file__), '..', 'public')
-CURRENT_PATH   = os.path.join(OUTPUT_DIR, 'regime_current.json')
-HISTORY_PATH   = os.path.join(OUTPUT_DIR, 'regime_history.json')
+OUTPUT_DIR   = os.path.join(os.path.dirname(__file__), '..', 'public')
+CURRENT_PATH = os.path.join(OUTPUT_DIR, 'regime_current.json')
+HISTORY_PATH = os.path.join(OUTPUT_DIR, 'regime_history.json')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
-# ── PASTE YOUR FULL regime_classifier.py CODE BELOW ──────────────────
-# (Copy everything from your regime_classifier.py EXCEPT the if __name__ == "__main__" block)
-# For convenience, the key classes are re-imported here inline.
+def flatten(df):
+    if isinstance(df.columns, pd.MultiIndex):
+        df.columns = df.columns.get_level_values(0)
+    return df
+
+def s(x):
+    """Force any pandas scalar/Series to plain Python float."""
+    if hasattr(x, 'item'):
+        return float(x.item())
+    return float(x)
+
+def get_close(df):
+    c = df['Close']
+    if isinstance(c, pd.DataFrame):
+        c = c.iloc[:, 0]
+    return c.squeeze()
+
 
 @dataclass
 class RegimeSnapshot:
@@ -46,6 +52,7 @@ class RegimeSnapshot:
     india_vix: float
     recommended_action: str
     dimension_signals: dict
+
 
 REGIME_MAP = {
     (75, 101): (4, "Strong Bull",    "Full deployment — favor momentum + small/midcap"),
@@ -64,39 +71,39 @@ def score_to_regime(score):
 
 class TrendDimension:
     def score(self, nifty):
-        close = nifty['Close']
+        close = get_close(nifty)
         signals = {}
         total = 0.0
 
         sma50  = close.rolling(50).mean()
         sma200 = close.rolling(200).mean()
 
-        dist_50 = (close.iloc[-1] - sma50.iloc[-1]) / sma50.iloc[-1] * 100
+        dist_50 = (s(close.iloc[-1]) - s(sma50.iloc[-1])) / s(sma50.iloc[-1]) * 100
         pts = 20 if dist_50 > 3 else 14 if dist_50 > 0 else 6 if dist_50 > -3 else 0
         total += pts
-        signals['price_vs_sma50_pct'] = round(float(dist_50), 2)
+        signals['price_vs_sma50_pct'] = round(dist_50, 2)
 
-        dist_200 = (close.iloc[-1] - sma200.iloc[-1]) / sma200.iloc[-1] * 100
+        dist_200 = (s(close.iloc[-1]) - s(sma200.iloc[-1])) / s(sma200.iloc[-1]) * 100
         pts = 20 if dist_200 > 5 else 13 if dist_200 > 0 else 5 if dist_200 > -5 else 0
         total += pts
-        signals['price_vs_sma200_pct'] = round(float(dist_200), 2)
+        signals['price_vs_sma200_pct'] = round(dist_200, 2)
 
-        golden = bool(sma50.iloc[-1] > sma200.iloc[-1])
+        golden = s(sma50.iloc[-1]) > s(sma200.iloc[-1])
         pts = 15 if golden else 0
         total += pts
-        signals['golden_cross'] = golden
+        signals['golden_cross'] = bool(golden)
 
         def roc(p):
-            return float((close.iloc[-1] / close.iloc[-p] - 1) * 100) if len(close) > p else 0.0
+            return (s(close.iloc[-1]) / s(close.iloc[-p]) - 1) * 100 if len(close) > p else 0.0
 
-        for p, max_pts, thresh in [(21,10,3), (63,10,7), (126,10,12)]:
+        for p, max_pts, thresh in [(21, 10, 3), (63, 10, 7), (126, 10, 12)]:
             r = roc(p)
             pts = max_pts if r > thresh else 6 if r > 0 else 2 if r > -thresh else 0
             total += pts
             signals[f'roc_{p}d_pct'] = round(r, 2)
 
-        high_52w = close.rolling(252).max().iloc[-1]
-        dist_52w = float((close.iloc[-1] / high_52w - 1) * 100)
+        high_52w = s(close.rolling(252).max().iloc[-1])
+        dist_52w = (s(close.iloc[-1]) / high_52w - 1) * 100
         pts = 15 if dist_52w > -5 else 10 if dist_52w > -10 else 4 if dist_52w > -20 else 0
         total += pts
         signals['dist_from_52w_high_pct'] = round(dist_52w, 2)
@@ -106,34 +113,32 @@ class TrendDimension:
 
 class VolatilityDimension:
     def score(self, nifty, vix):
-        close = nifty['Close']
+        close = get_close(nifty)
+        vix_close = get_close(vix).reindex(close.index, method='ffill').dropna()
         signals = {}
         total = 0.0
 
-        vix_close = vix['Close'] if 'Close' in vix.columns else vix.iloc[:, 0]
-        vix_close = vix_close.reindex(close.index, method='ffill').dropna()
-
-        current_vix = float(vix_close.iloc[-1])
+        current_vix = s(vix_close.iloc[-1])
         pts = 35 if current_vix < 13 else 28 if current_vix < 16 else 18 if current_vix < 20 else 10 if current_vix < 25 else 4 if current_vix < 30 else 0
         total += pts
         signals['india_vix'] = round(current_vix, 2)
 
         if len(vix_close) > 20:
-            vix_chg = float((vix_close.iloc[-1] / vix_close.iloc[-20] - 1) * 100)
+            vix_chg = (s(vix_close.iloc[-1]) / s(vix_close.iloc[-20]) - 1) * 100
             pts = 20 if vix_chg < -15 else 15 if vix_chg < -5 else 10 if vix_chg < 5 else 4 if vix_chg < 15 else 0
             total += pts
             signals['vix_20d_change_pct'] = round(vix_chg, 2)
 
         returns = close.pct_change().dropna()
-        rv_20d = float(returns.rolling(20).std().iloc[-1] * np.sqrt(252) * 100)
-        rv_1y  = float(returns.rolling(252).std().iloc[-1] * np.sqrt(252) * 100)
+        rv_20d = s(returns.rolling(20).std().iloc[-1]) * np.sqrt(252) * 100
+        rv_1y  = s(returns.rolling(252).std().iloc[-1]) * np.sqrt(252) * 100
         rv_ratio = rv_20d / rv_1y if rv_1y > 0 else 1.0
         pts = 25 if rv_ratio < 0.7 else 18 if rv_ratio < 0.9 else 12 if rv_ratio < 1.1 else 5 if rv_ratio < 1.4 else 0
         total += pts
         signals['rv_ratio'] = round(rv_ratio, 3)
 
         if len(vix_close) > 10:
-            vov = float(vix_close.rolling(10).std().iloc[-1])
+            vov = s(vix_close.rolling(10).std().iloc[-1])
             pts = 20 if vov < 1.0 else 14 if vov < 2.0 else 7 if vov < 3.5 else 0
             total += pts
             signals['vix_stability_std'] = round(vov, 3)
@@ -149,16 +154,21 @@ class BreadthDimension:
         if not components_data:
             return 50.0, {'note': 'No breadth data'}
 
-        closes = {t: df['Close'] for t, df in components_data.items()
-                  if 'Close' in df.columns and len(df) > 200}
+        closes = {}
+        for t, df in components_data.items():
+            if 'Close' in df.columns and len(df) > 200:
+                closes[t] = get_close(df)
 
         above_50, above_200, advances = [], [], []
         for close in closes.values():
             try:
-                curr = close.iloc[-1]
-                above_50.append(curr > close.rolling(50).mean().iloc[-1])
-                above_200.append(curr > close.rolling(200).mean().iloc[-1])
-                advances.append(curr > close.iloc[-2])
+                curr   = s(close.iloc[-1])
+                sma50  = s(close.rolling(50).mean().iloc[-1])
+                sma200 = s(close.rolling(200).mean().iloc[-1])
+                prev   = s(close.iloc[-2])
+                above_50.append(curr > sma50)
+                above_200.append(curr > sma200)
+                advances.append(curr > prev)
             except:
                 continue
 
@@ -190,9 +200,8 @@ class FlowDimension:
     def score(self, nifty, vix, fii_dii_df=None):
         signals = {}
         total = 0.0
-        close = nifty['Close']
-        vix_close = vix['Close'] if 'Close' in vix.columns else vix.iloc[:, 0]
-        vix_close = vix_close.reindex(close.index, method='ffill').dropna()
+        close = get_close(nifty)
+        vix_close = get_close(vix).reindex(close.index, method='ffill').dropna()
 
         if fii_dii_df is not None:
             try:
@@ -213,14 +222,14 @@ class FlowDimension:
                 fii_dii_df = None
 
         if fii_dii_df is None:
-            r5d  = float((close.iloc[-1] / close.iloc[-5] - 1) * 100)
-            v5d  = float((vix_close.iloc[-1] / vix_close.iloc[-5] - 1) * 100)
+            r5d = (s(close.iloc[-1]) / s(close.iloc[-5]) - 1) * 100
+            v5d = (s(vix_close.iloc[-1]) / s(vix_close.iloc[-5]) - 1) * 100
             pts = 65 if r5d > 1 and v5d < -5 else 48 if r5d > 0 and v5d < 0 else 30 if r5d > 0 else 18 if v5d < 0 else 5
             total += pts
             signals['data_source'] = 'price_proxy'
 
         if len(vix_close) > 20:
-            slope = float((vix_close.iloc[-1] - vix_close.iloc[-20]) / 20)
+            slope = (s(vix_close.iloc[-1]) - s(vix_close.iloc[-20])) / 20
             pts = 35 if slope < -0.2 else 25 if slope < 0 else 15 if slope < 0.2 else 6 if slope < 0.5 else 0
             total += pts
             signals['vix_slope_20d'] = round(slope, 4)
@@ -240,8 +249,6 @@ NIFTY500_SAMPLE = [
 ]
 
 
-# ── MAIN RUNNER ───────────────────────────────────────────────────────
-
 def run():
     print(f"\n{'='*55}")
     print(f"  REGIME CLASSIFIER — {datetime.today().strftime('%Y-%m-%d %H:%M')} UTC")
@@ -251,25 +258,24 @@ def run():
     start = end - timedelta(days=600)
 
     print("Downloading Nifty 50...")
-    nifty = yf.download("^NSEI", start=start, end=end, progress=False, auto_adjust=True)
+    nifty = flatten(yf.download("^NSEI", start=start, end=end, progress=False, auto_adjust=True))
     print(f"  ✓ {len(nifty)} days")
 
     print("Downloading India VIX...")
-    vix = yf.download("^INDIAVIX", start=start, end=end, progress=False, auto_adjust=True)
+    vix = flatten(yf.download("^INDIAVIX", start=start, end=end, progress=False, auto_adjust=True))
     print(f"  ✓ {len(vix)} days")
 
     print(f"Downloading {len(NIFTY500_SAMPLE)} breadth stocks...")
     components = {}
     for t in NIFTY500_SAMPLE:
         try:
-            df = yf.download(t, start=start, end=end, progress=False, auto_adjust=True)
+            df = flatten(yf.download(t, start=start, end=end, progress=False, auto_adjust=True))
             if len(df) > 100:
                 components[t] = df
         except:
             pass
     print(f"  ✓ {len(components)} stocks loaded")
 
-    # Score dimensions
     ts, td = TrendDimension().score(nifty)
     vs, vd = VolatilityDimension().score(nifty, vix)
     bs, bd = BreadthDimension().score(components)
@@ -278,8 +284,8 @@ def run():
     composite = ts * 0.30 + vs * 0.25 + bs * 0.25 + fs * 0.20
     code, label, action = score_to_regime(composite)
 
-    current_price = float(nifty['Close'].iloc[-1])
-    current_vix   = float(vix['Close'].iloc[-1]) if len(vix) > 0 else 0.0
+    current_price = s(get_close(nifty).iloc[-1])
+    current_vix   = s(get_close(vix).iloc[-1]) if len(vix) > 0 else 0.0
 
     snap = RegimeSnapshot(
         date               = str(nifty.index[-1].date()),
@@ -296,29 +302,26 @@ def run():
         dimension_signals  = {'trend': td, 'volatility': vd, 'breadth': bd, 'flow': fd},
     )
 
-    # Historical weekly scan
     print("\nBuilding 2-year history...")
     hist_records = []
     weekly_dates = nifty['2023-01-01':].resample('W').last().index
 
     for d in weekly_dates:
         try:
-            n_slice = nifty[nifty.index <= d]
-            v_slice = vix[vix.index <= d]
-            if len(n_slice) < 200:
+            n_sl = nifty[nifty.index <= d]
+            v_sl = vix[vix.index <= d]
+            if len(n_sl) < 200:
                 continue
-
-            t2, _ = TrendDimension().score(n_slice)
-            v2, _ = VolatilityDimension().score(n_slice, v_slice)
+            t2, _ = TrendDimension().score(n_sl)
+            v2, _ = VolatilityDimension().score(n_sl, v_sl)
             b2, _ = BreadthDimension().score(components)
-            f2, _ = FlowDimension().score(n_slice, v_slice)
+            f2, _ = FlowDimension().score(n_sl, v_sl)
             c2    = t2 * 0.30 + v2 * 0.25 + b2 * 0.25 + f2 * 0.20
             rc, rl, _ = score_to_regime(c2)
-
             hist_records.append({
                 'date':             str(d.date()),
-                'nifty_price':      round(float(n_slice['Close'].iloc[-1]), 2),
-                'india_vix':        round(float(v_slice['Close'].iloc[-1]) if len(v_slice) > 0 else 0, 2),
+                'nifty_price':      round(s(get_close(n_sl).iloc[-1]), 2),
+                'india_vix':        round(s(get_close(v_sl).iloc[-1]) if len(v_sl) > 0 else 0, 2),
                 'trend_score':      round(t2, 1),
                 'volatility_score': round(v2, 1),
                 'breadth_score':    round(b2, 1),
@@ -332,7 +335,6 @@ def run():
 
     print(f"  ✓ {len(hist_records)} weekly snapshots")
 
-    # Write JSON
     with open(CURRENT_PATH, 'w') as f:
         json.dump(asdict(snap), f, indent=2, default=str)
 
