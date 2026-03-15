@@ -1,6 +1,9 @@
 """
-Daily Regime Classifier Runner — FIXED for yfinance multi-level columns
-and pandas Series ambiguity on all platforms including GitHub Actions.
+Daily Regime Classifier Runner
+================================
+Auto-detects FII/DII data from fii_dii_scraper.py output.
+If fii_dii_data.csv exists → uses real flow data.
+If not → falls back to price-based proxy.
 """
 
 import os
@@ -17,6 +20,7 @@ warnings.filterwarnings('ignore')
 OUTPUT_DIR   = os.path.join(os.path.dirname(__file__), '..', 'public')
 CURRENT_PATH = os.path.join(OUTPUT_DIR, 'regime_current.json')
 HISTORY_PATH = os.path.join(OUTPUT_DIR, 'regime_history.json')
+FII_DII_CSV  = os.path.join(os.path.dirname(__file__), 'fii_dii_data.csv')
 os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
@@ -26,7 +30,6 @@ def flatten(df):
     return df
 
 def s(x):
-    """Force any pandas scalar/Series to plain Python float."""
     if hasattr(x, 'item'):
         return float(x.item())
     return float(x)
@@ -51,6 +54,7 @@ class RegimeSnapshot:
     nifty_price: float
     india_vix: float
     recommended_action: str
+    fii_dii_source: str
     dimension_signals: dict
 
 
@@ -203,31 +207,54 @@ class FlowDimension:
         close = get_close(nifty)
         vix_close = get_close(vix).reindex(close.index, method='ffill').dropna()
 
-        if fii_dii_df is not None:
+        # ── REAL FII/DII DATA ──────────────────────────────────────────
+        if fii_dii_df is not None and len(fii_dii_df) >= 20:
             try:
-                fii = float(fii_dii_df['FII_Net'].rolling(20).sum().iloc[-1])
-                dii = float(fii_dii_df['DII_Net'].rolling(20).sum().iloc[-1])
-                fii_cr = fii / 1e7
+                fii_20d = float(fii_dii_df['FII_Net'].tail(20).sum())
+                dii_20d = float(fii_dii_df['DII_Net'].tail(20).sum())
+                fii_5d  = float(fii_dii_df['FII_Net'].tail(5).sum())
+                fii_10d = float(fii_dii_df['FII_Net'].tail(10).sum())
+
+                # FII 20-day rolling net (30 pts)
+                fii_cr = fii_20d / 100  # Already in Crores from NSE
                 pts = 30 if fii_cr > 5000 else 22 if fii_cr > 1000 else 12 if fii_cr > -1000 else 4 if fii_cr > -5000 else 0
                 total += pts
                 signals['fii_20d_net_cr'] = round(fii_cr, 0)
-                pts = 20 if fii > 0 and dii > 0 else 14 if fii > 0 else 8 if dii > 0 else 0
+                signals['fii_flow_pts'] = pts
+
+                # FII vs DII positioning (20 pts)
+                pts = 20 if fii_20d > 0 and dii_20d > 0 else \
+                      14 if fii_20d > 0 and dii_20d < 0 else \
+                       8 if fii_20d < 0 and dii_20d > 0 else 0
                 total += pts
-                fii_recent = float(fii_dii_df['FII_Net'].rolling(5).sum().iloc[-1])
-                fii_prior  = float(fii_dii_df['FII_Net'].rolling(5).sum().iloc[-6])
-                pts = 15 if fii_recent > fii_prior * 1.2 else 10 if fii_recent > fii_prior else 5 if fii_recent > 0 else 0
+                signals['dii_20d_net_cr'] = round(dii_20d / 100, 0)
+                signals['fii_dii_pts'] = pts
+
+                # FII momentum — is recent flow accelerating? (15 pts)
+                pts = 15 if fii_5d > fii_10d / 2 * 1.2 else \
+                      10 if fii_5d > 0 else \
+                       5 if fii_10d > 0 else 0
                 total += pts
-                signals['data_source'] = 'real_fii_dii'
-            except:
+                signals['fii_trend_pts'] = pts
+                signals['data_source'] = 'real_nse_fii_dii'
+
+            except Exception as e:
+                signals['fii_error'] = str(e)
                 fii_dii_df = None
 
-        if fii_dii_df is None:
+        # ── PRICE-BASED PROXY (fallback) ───────────────────────────────
+        if fii_dii_df is None or len(fii_dii_df) < 20:
             r5d = (s(close.iloc[-1]) / s(close.iloc[-5]) - 1) * 100
             v5d = (s(vix_close.iloc[-1]) / s(vix_close.iloc[-5]) - 1) * 100
-            pts = 65 if r5d > 1 and v5d < -5 else 48 if r5d > 0 and v5d < 0 else 30 if r5d > 0 else 18 if v5d < 0 else 5
+            pts = 65 if r5d > 1 and v5d < -5 else \
+                  48 if r5d > 0 and v5d < 0 else \
+                  30 if r5d > 0 else \
+                  18 if v5d < 0 else 5
             total += pts
             signals['data_source'] = 'price_proxy'
+            signals['note'] = 'Run fii_dii_scraper.py to unlock real flow data'
 
+        # ── VIX SLOPE SENTIMENT (35 pts — always active) ──────────────
         if len(vix_close) > 20:
             slope = (s(vix_close.iloc[-1]) - s(vix_close.iloc[-20])) / 20
             pts = 35 if slope < -0.2 else 25 if slope < 0 else 15 if slope < 0.2 else 6 if slope < 0.5 else 0
@@ -247,6 +274,20 @@ NIFTY500_SAMPLE = [
     "ONGC.NS","NTPC.NS","POWERGRID.NS","WIPRO.NS","TECHM.NS",
     "DRREDDY.NS","CIPLA.NS","FEDERALBNK.NS","INDHOTEL.NS","ADANIPORTS.NS",
 ]
+
+
+def load_fii_dii():
+    """Load FII/DII CSV if it exists."""
+    if not os.path.exists(FII_DII_CSV):
+        return None
+    try:
+        df = pd.read_csv(FII_DII_CSV, parse_dates=['date'])
+        if len(df) >= 20:
+            print(f"  ✓ FII/DII data loaded: {len(df)} days (up to {df['date'].max().strftime('%Y-%m-%d')})")
+            return df
+    except Exception as e:
+        print(f"  ✗ FII/DII load error: {e}")
+    return None
 
 
 def run():
@@ -276,10 +317,19 @@ def run():
             pass
     print(f"  ✓ {len(components)} stocks loaded")
 
+    # Auto-load FII/DII if available
+    print("Loading FII/DII data...")
+    fii_dii_df = load_fii_dii()
+    if fii_dii_df is None:
+        print("  ⚠ No FII/DII data — using price proxy (run fii_dii_scraper.py first)")
+
+    fii_dii_source = "real_nse_fii_dii" if fii_dii_df is not None else "price_proxy"
+
+    # Score dimensions
     ts, td = TrendDimension().score(nifty)
     vs, vd = VolatilityDimension().score(nifty, vix)
     bs, bd = BreadthDimension().score(components)
-    fs, fd = FlowDimension().score(nifty, vix)
+    fs, fd = FlowDimension().score(nifty, vix, fii_dii_df)
 
     composite = ts * 0.30 + vs * 0.25 + bs * 0.25 + fs * 0.20
     code, label, action = score_to_regime(composite)
@@ -299,6 +349,7 @@ def run():
         nifty_price        = round(current_price, 2),
         india_vix          = round(current_vix, 2),
         recommended_action = action,
+        fii_dii_source     = fii_dii_source,
         dimension_signals  = {'trend': td, 'volatility': vd, 'breadth': bd, 'flow': fd},
     )
 
@@ -312,12 +363,17 @@ def run():
             v_sl = vix[vix.index <= d]
             if len(n_sl) < 200:
                 continue
+
+            # Slice FII/DII to date
+            f_sl = fii_dii_df[fii_dii_df['date'] <= d] if fii_dii_df is not None else None
+
             t2, _ = TrendDimension().score(n_sl)
             v2, _ = VolatilityDimension().score(n_sl, v_sl)
             b2, _ = BreadthDimension().score(components)
-            f2, _ = FlowDimension().score(n_sl, v_sl)
+            f2, _ = FlowDimension().score(n_sl, v_sl, f_sl)
             c2    = t2 * 0.30 + v2 * 0.25 + b2 * 0.25 + f2 * 0.20
             rc, rl, _ = score_to_regime(c2)
+
             hist_records.append({
                 'date':             str(d.date()),
                 'nifty_price':      round(s(get_close(n_sl).iloc[-1]), 2),
@@ -343,8 +399,9 @@ def run():
 
     print(f"\n✓ Saved: {CURRENT_PATH}")
     print(f"✓ Saved: {HISTORY_PATH}")
-    print(f"\n  Regime: {label} ({composite:.1f}/100)")
-    print(f"  Nifty:  {current_price:,.0f}  |  VIX: {current_vix:.1f}")
+    print(f"\n  Regime:       {label} ({composite:.1f}/100)")
+    print(f"  Nifty:        {current_price:,.0f}  |  VIX: {current_vix:.1f}")
+    print(f"  Flow Source:  {fii_dii_source}")
     print(f"\n{'='*55}\n")
 
 
