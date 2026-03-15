@@ -545,6 +545,32 @@ def run_backtest(sector_data: dict, model) -> pd.DataFrame:
     return df
 
 
+
+def print_allocation(alloc):
+    sep = "=" * 55
+    print("")
+    print("  " + sep)
+    print("  SECTOR ROTATION -- " + alloc.date)
+    print("  " + sep)
+    print("  Regime:  " + alloc.regime_label + " (" + str(alloc.composite_score) + "/100)")
+    print("  Holding: " + str(alloc.sectors_held) + " sectors  |  Cash: " + str(round(alloc.cash_weight*100)) + "%")
+    print("  Model:   " + alloc.model_used)
+    print("")
+    print("  ALLOCATIONS:")
+    print("  {:<16} {:>8} {:>10} {:>8} {:>8}".format("Sector","Weight","Pred Ret","1M","3M"))
+    print("  " + "-" * 52)
+    for a in alloc.allocations:
+        print("  {:<16} {:>7.1f}% {:>9.1f}% {:>7.1f}% {:>7.1f}%".format(
+            a["sector"], a["weight"]*100, a["predicted_ret"], a["ret_1m"], a["ret_3m"]))
+    if alloc.excluded_sectors:
+        print("")
+        print("  EXCLUDED (" + str(len(alloc.excluded_sectors)) + " sectors):")
+        for e in alloc.excluded_sectors[:5]:
+            print("  x " + e["sector"] + ": " + ", ".join(e["reasons"]))
+    print("  " + sep)
+    print("")
+
+
 def run():
     print(f"\n{'='*55}")
     print(f"  SECTOR ROTATION ENGINE — {datetime.today().strftime('%Y-%m-%d %H:%M')}")
