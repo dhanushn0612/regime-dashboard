@@ -33,6 +33,15 @@ from dataclasses import dataclass, asdict
 
 warnings.filterwarnings('ignore')
 
+def month_resample(series):
+    """Handle pandas version differences for month-end resampling."""
+    try:
+        return series.pipe(lambda s: month_resample(s))
+    except Exception:
+        return series.pipe(lambda s: month_resample(s))
+
+
+
 # ── PATHS ─────────────────────────────────────────────────────────────
 SCRIPT_DIR    = os.path.dirname(os.path.abspath(__file__))
 OUTPUT_DIR    = os.path.join(SCRIPT_DIR, '..', 'public')
@@ -277,7 +286,7 @@ def build_training_data(sector_data: dict) -> pd.DataFrame:
 
     for name, df in sector_data.items():
         close = get_close(df)
-        monthly_dates = close.resample('M').last().index
+        monthly_dates = close.pipe(lambda s: month_resample(s)).index
 
         for i in range(3, len(monthly_dates) - 1):
             d     = monthly_dates[i]
@@ -483,7 +492,7 @@ def run_backtest(sector_data: dict, model) -> pd.DataFrame:
     results = []
     sample_sector = next(iter(sector_data.values()))
     close_sample  = get_close(sample_sector)
-    monthly_dates = close_sample.resample('M').last().index[-18:]  # Last 18 months
+    monthly_dates = close_sample.pipe(lambda s: month_resample(s)).index[-18:]  # Last 18 months
 
     for d in monthly_dates[:-1]:
         try:
