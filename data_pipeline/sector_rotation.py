@@ -276,6 +276,9 @@ def build_training_data(sector_data: dict) -> pd.DataFrame:
     Label = sector's forward 1-month return (what we want to predict).
     Features = same as build_features() but computed at each month-end.
     """
+    # Skip if model already saved — saves ~5 min on GitHub Actions
+    if os.path.exists(MODEL_PATH):
+        return pd.DataFrame()
     print("  Building XGBoost training data...")
 
     end   = datetime.today()
@@ -484,96 +487,65 @@ def compute_allocation(ranked_df: pd.DataFrame,
 # ── STEP 6: BACKTEST ──────────────────────────────────────────────────
 def run_backtest(sector_data: dict, model) -> pd.DataFrame:
     """
-    Simple monthly backtest: at each month-end, run the full pipeline
-    and record what the allocation would have been + actual forward return.
+    Fast vectorised backtest — no downloads inside loop.
+    Uses already-loaded sector_data only. Max 12 months.
     """
-    print("\nRunning backtest...")
+    print("
+Running backtest (fast mode)...")
+    try:
+        sample_close = get_close(next(iter(sector_data.values())))
+        monthly_dates = sample_close.pipe(lambda s: month_resample(s)).index[-13:]
+    except Exception as e:
+        print(f"  Backtest skipped: {e}")
+        return pd.DataFrame()
 
     results = []
-    sample_sector = next(iter(sector_data.values()))
-    close_sample  = get_close(sample_sector)
-    monthly_dates = close_sample.pipe(lambda s: month_resample(s)).index[-18:]  # Last 18 months
-
     for d in monthly_dates[:-1]:
         try:
-            # Slice data to this date
-            sliced = {}
-            for name, df in sector_data.items():
-                sl = df[df.index <= d]
-                if len(sl) > 100:
-                    sliced[name] = sl
-
-            # Simple momentum ranking (no ML for backtest speed)
             rows = []
-            for name, df in sliced.items():
+            for name, df in sector_data.items():
                 close = get_close(df)
+                past  = close[close.index <= d]
+                if len(past) < 22:
+                    continue
                 rows.append({
-                    'sector':       name,
-                    'ret_1m':       (s(close.iloc[-1]) / s(close.iloc[-21]) - 1) if len(close) > 21 else 0,
-                    'ret_3m':       (s(close.iloc[-1]) / s(close.iloc[-63]) - 1) if len(close) > 63 else 0,
-                    'predicted_ret':(s(close.iloc[-1]) / s(close.iloc[-21]) - 1) if len(close) > 21 else 0,
+                    'sector':        name,
+                    'predicted_ret': (s(past.iloc[-1]) / s(past.iloc[-21]) - 1),
                 })
-
             if not rows:
                 continue
-
-            feat_df  = pd.DataFrame(rows).sort_values('predicted_ret', ascending=False)
-            top3     = feat_df.head(3)['sector'].tolist()
-
-            # Forward return (next month)
+            top3 = (pd.DataFrame(rows)
+                    .sort_values('predicted_ret', ascending=False)
+                    .head(3)['sector'].tolist())
             fwd_rets = []
             for name in top3:
-                if name not in sector_data:
-                    continue
-                close = get_close(sector_data[name])
+                close  = get_close(sector_data[name])
+                past   = close[close.index <= d]
                 future = close[close.index > d].iloc[:21]
-                if len(future) >= 10:
-                    fwd_rets.append(s(future.iloc[-1]) / s(close[close.index <= d].iloc[-1]) - 1)
-
-            avg_fwd = np.mean(fwd_rets) if fwd_rets else 0
-
-            results.append({
-                'date':     str(d.date()),
-                'top3':     top3,
-                'fwd_ret':  round(avg_fwd * 100, 2),
-            })
-
+                if len(future) >= 10 and len(past) > 0:
+                    fwd_rets.append(s(future.iloc[-1]) / s(past.iloc[-1]) - 1)
+            if fwd_rets:
+                results.append({
+                    'date':    str(d.date()),
+                    'top3':    top3,
+                    'fwd_ret': round(float(np.mean(fwd_rets)) * 100, 2),
+                })
         except Exception:
             continue
 
     df = pd.DataFrame(results)
     if not df.empty:
-        wins     = (df['fwd_ret'] > 0).sum()
-        avg_ret  = df['fwd_ret'].mean()
-        cum_ret  = (1 + df['fwd_ret'] / 100).prod() - 1
+        wins    = (df['fwd_ret'] > 0).sum()
+        avg_ret = df['fwd_ret'].mean()
+        cum_ret = (1 + df['fwd_ret'] / 100).prod() - 1
         print(f"  Backtest: {len(df)} months, {wins} wins ({wins/len(df)*100:.0f}% WR)")
         print(f"  Avg monthly return: {avg_ret:.2f}%")
         print(f"  Cumulative return:  {cum_ret*100:.1f}%")
-
+    else:
+        print("  No backtest results")
     return df
 
 
-# ── PRINT REPORT ──────────────────────────────────────────────────────
-def print_allocation(alloc: SectorAllocation):
-    print(f"\n{'='*55}")
-    print(f"  SECTOR ROTATION — {alloc.date}")
-    print(f"{'='*55}")
-    print(f"  Regime:  {alloc.regime_label} ({alloc.composite_score:.1f}/100)")
-    print(f"  Holding: {alloc.sectors_held} sectors  |  Cash: {alloc.cash_weight*100:.0f}%")
-    print(f"  Model:   {alloc.model_used}")
-    print(f"\n  ALLOCATIONS:")
-    print(f"  {'Sector':<16} {'Weight':>8} {'Pred Ret':>10} {'1M':>8} {'3M':>8}")
-    print(f"  {'-'*52}")
-    for a in alloc.allocations:
-        print(f"  {a['sector']:<16} {a['weight']*100:>7.1f}% {a['predicted_ret']:>9.1f}% {a['ret_1m']:>7.1f}% {a['ret_3m']:>7.1f}%")
-    if alloc.excluded_sectors:
-        print(f"\n  EXCLUDED ({len(alloc.excluded_sectors)} sectors):")
-        for e in alloc.excluded_sectors[:5]:
-            print(f"  ✗ {e['sector']}: {', '.join(e['reasons'])}")
-    print(f"{'='*55}\n")
-
-
-# ── MAIN ──────────────────────────────────────────────────────────────
 def run():
     print(f"\n{'='*55}")
     print(f"  SECTOR ROTATION ENGINE — {datetime.today().strftime('%Y-%m-%d %H:%M')}")
