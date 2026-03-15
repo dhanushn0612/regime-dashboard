@@ -490,8 +490,7 @@ def run_backtest(sector_data: dict, model) -> pd.DataFrame:
     Fast vectorised backtest — no downloads inside loop.
     Uses already-loaded sector_data only. Max 12 months.
     """
-    print("
-Running backtest (fast mode)...")
+    print("Running backtest (fast mode)...")
     try:
         sample_close = get_close(next(iter(sector_data.values())))
         monthly_dates = sample_close.pipe(lambda s: month_resample(s)).index[-13:]
