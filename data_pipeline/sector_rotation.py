@@ -116,7 +116,7 @@ def get_close(df):
 
 
 # ── STEP 1: DOWNLOAD SECTOR DATA ──────────────────────────────────────
-def download_sectors(lookback_days=504) -> dict[str, pd.DataFrame]:
+def download_sectors(lookback_days=400) -> dict[str, pd.DataFrame]:
     end   = datetime.today()
     start = end - timedelta(days=lookback_days)
 
@@ -289,7 +289,7 @@ def build_training_data(sector_data: dict) -> pd.DataFrame:
 
     for name, df in sector_data.items():
         close = get_close(df)
-        monthly_dates = close.pipe(lambda s: month_resample(s)).index
+        monthly_dates = close.pipe(lambda s: month_resample(s)).index[-14:]  # Max 12 months
 
         for i in range(3, len(monthly_dates) - 1):
             d     = monthly_dates[i]
@@ -607,21 +607,14 @@ def run():
     )
 
     # Step 4: Train or load XGBoost
+    # Always retrain from scratch — fast (~30s), avoids pickle/OS issues
+    print("Training XGBoost model (quick retrain)...")
     model = None
-    if os.path.exists(MODEL_PATH):
-        print("Loading existing XGBoost model...")
-        with open(MODEL_PATH, 'rb') as f:
-            model = pickle.load(f)
-        print("  ✓ Model loaded")
-    else:
-        print("Training XGBoost model...")
-        train_df = build_training_data(sector_data)
-        if len(train_df) >= 50:
-            model = train_xgboost(train_df)
-            if model:
-                with open(MODEL_PATH, 'wb') as f:
-                    pickle.dump(model, f)
-                print("  ✓ Model saved")
+    train_df = build_training_data(sector_data)
+    if len(train_df) >= 50:
+        model = train_xgboost(train_df)
+    if model is None:
+        print("  Using momentum fallback")
 
     # Add regime features to features_df
     if not features_df.empty:
@@ -648,8 +641,10 @@ def run():
     # Print report
     print_allocation(alloc)
 
-    # Step 6: Backtest
-    backtest_df = run_backtest(sector_data, model)
+    # Step 6: Backtest — skipped in automated mode (run manually with --backtest flag)
+    backtest_df = pd.DataFrame()
+    if '--backtest' in __import__('sys').argv:
+        backtest_df = run_backtest(sector_data, model)
 
     # Save outputs
     with open(SECTOR_CURR, 'w') as f:
