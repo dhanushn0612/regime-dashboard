@@ -2,7 +2,7 @@ name: Daily Regime Update
 
 on:
   schedule:
-    - cron: '30 4 * * 1-5'   # 10:00 AM IST, Mon-Fri
+    - cron: '30 4 * * 1-5'
   workflow_dispatch:
 
 jobs:
@@ -20,15 +20,19 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install yfinance pandas numpy requests xgboost scikit-learn tradingview-scraper beautifulsoup4
+          pip install yfinance pandas numpy requests xgboost scikit-learn tradingview-scraper beautifulsoup4 scipy
 
       - name: Run regime classifier
-        run: |
-          python data_pipeline/run_classifier.py
+        run: python data_pipeline/run_classifier.py
 
       - name: Run sector rotation engine
-        run: |
-          python data_pipeline/sector_rotation.py
+        run: python data_pipeline/sector_rotation.py
+
+      - name: Run stock screener
+        run: python data_pipeline/stock_screener.py
+
+      - name: Run portfolio construction
+        run: python data_pipeline/portfolio_construction.py
 
       - name: Commit updated data
         run: |
@@ -37,6 +41,7 @@ jobs:
           git add public/regime_current.json public/regime_history.json
           git add public/sector_current.json public/sector_history.json
           git add public/screener_current.json
+          git add public/portfolio_current.json public/portfolio_history.json
           git add data_pipeline/fundamental_cache.csv || true
           git diff --staged --quiet || git commit -m "📊 Daily update $(date +'%Y-%m-%d')"
           git push

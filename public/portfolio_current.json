@@ -1,0 +1,15 @@
+{
+  "date": "2026-03-16",
+  "regime_code": 1,
+  "regime_label": "Mild Bear",
+  "composite_score": 22.0,
+  "equity_allocation": 0.15,
+  "cash_allocation": 0.85,
+  "rebalance_needed": true,
+  "rebalance_reason": "First run \u2014 initialising portfolio",
+  "positions": [],
+  "analytics": {},
+  "transaction_costs": {},
+  "status": "cash_mode",
+  "note": "Regime too weak (Mild Bear) \u2014 holding cash"
+}

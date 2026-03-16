@@ -1,0 +1,5 @@
+content = open('src/App.js').read()
+print('screener in tabs:', 'screener' in content)
+print('setScreener in file:', 'setScreener' in content)
+print('screener_current:', 'screener_current' in content)
+print('total chars:', len(content))
