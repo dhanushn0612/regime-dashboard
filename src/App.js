@@ -231,6 +231,7 @@ export default function App() {
   const [sector, setSector] = useState(null);
   const [screener, setScreener] = useState(null);
   const [portfolio, setPortfolio] = useState(null);
+  const [risk, setRisk] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -239,13 +240,15 @@ export default function App() {
       fetch('/sector_current.json').then(r => r.json()).catch(() => null),
       fetch('/screener_current.json').then(r => r.json()).catch(() => null),
       fetch('/portfolio_current.json').then(r => r.json()).catch(() => null),
+      fetch('/risk_current.json').then(r => r.json()).catch(() => null),
     ])
-      .then(([curr, hist, sec, scr, port]) => {
+      .then(([curr, hist, sec, scr, port, rsk]) => {
         setCurrent(curr);
         setHistory(hist);
         setSector(sec);
         setScreener(scr);
         setPortfolio(port);
+        setRisk(rsk);
         setLoading(false);
       })
       .catch(e => {
@@ -268,7 +271,7 @@ export default function App() {
   );
 
   const cfg = REGIME_CONFIG[current.regime_label] || { color: "#aaa", bg: "transparent" };
-  const tabs = ["overview", "dimensions", "history", "sectors", "screener", "portfolio", "signals"];
+  const tabs = ["overview", "dimensions", "history", "sectors", "screener", "portfolio", "risk", "signals"];
   const regimeDist = history.reduce((acc, d) => { acc[d.regime_label] = (acc[d.regime_label] || 0) + 1; return acc; }, {});
 
   return (
@@ -689,6 +692,110 @@ export default function App() {
                     Expected returns blend 3M momentum (40%), ML score premium (40%), and mean-reversion adjustment (20%).
                     Total equity exposure scaled by regime: {Math.round(portfolio.equity_allocation*100)}% in current {portfolio.regime_label} regime.
                     Transaction costs: 20bps large cap, 40bps mid cap round-trip.
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+
+        {activeTab === "risk" && (
+          <div>
+            {!risk ? (
+              <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "32px", textAlign: "center" }}>
+                <div style={{ fontSize: "11px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>NO RISK DATA</div>
+                <div style={{ fontSize: "12px", color: "#888" }}>Run python data_pipeline/risk_management.py</div>
+              </div>
+            ) : (
+              <div>
+                {/* Aggregate risk banner */}
+                <div style={{
+                  background: `${risk.aggregate?.color}15`,
+                  border: `1px solid ${risk.aggregate?.color}40`,
+                  borderRadius: "8px", padding: "18px 20px", marginBottom: "16px",
+                  display: "flex", justifyContent: "space-between", alignItems: "center",
+                }}>
+                  <div>
+                    <div style={{ fontSize: "9px", color: risk.aggregate?.color, letterSpacing: "2px", marginBottom: "4px" }}>RISK STATUS — {risk.date}</div>
+                    <div style={{ fontSize: "14px", color: "#fff", fontWeight: "600" }}>{risk.aggregate?.overall_message}</div>
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <div style={{ fontSize: "40px", fontWeight: "700", color: risk.aggregate?.color, fontFamily: "monospace", lineHeight: 1 }}>{risk.aggregate?.risk_score}</div>
+                    <div style={{ fontSize: "9px", color: "#555", marginTop: "4px" }}>/100 risk score</div>
+                  </div>
+                </div>
+
+                {/* Position size impact */}
+                {risk.aggregate?.position_size_mult < 1.0 && (
+                  <div style={{ background: "rgba(255,107,107,0.08)", border: "1px solid #ff6b6b30", borderRadius: "8px", padding: "14px 18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "10px", color: "#ff6b6b", letterSpacing: "1px", marginBottom: "6px" }}>AUTO POSITION REDUCTION TRIGGERED</div>
+                    <div style={{ display: "flex", gap: "24px", fontSize: "12px" }}>
+                      <span style={{ color: "#888" }}>Base equity: <span style={{ color: "#fff" }}>{risk.aggregate?.base_equity_pct}%</span></span>
+                      <span style={{ color: "#555" }}>→</span>
+                      <span style={{ color: "#888" }}>Adjusted equity: <span style={{ color: "#ff6b6b", fontWeight: "700" }}>{risk.aggregate?.adjusted_equity_pct}%</span></span>
+                      <span style={{ color: "#888" }}>Multiplier: <span style={{ color: "#ff6b6b" }}>{risk.aggregate?.position_size_mult}x</span></span>
+                    </div>
+                  </div>
+                )}
+
+                {/* Individual rules */}
+                <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                  <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>
+                    RISK RULES — {risk.aggregate?.triggered_count}/6 TRIGGERED
+                  </div>
+                  {risk.rules?.map((rule, i) => {
+                    const colors = { INFO: "#00c896", WARN: "#ffd166", ALERT: "#ff6b6b", CRITICAL: "#ff2d55" };
+                    const col = colors[rule.severity] || "#888";
+                    const ruleNames = {
+                      'portfolio_drawdown': 'Portfolio Drawdown',
+                      'stock_stop_loss': 'Stock Stop Loss',
+                      'factor_concentration': 'Factor Concentration',
+                      'correlation_spike': 'Correlation Spike',
+                      'regime_deterioration': 'Regime Deterioration',
+                      'market_anomaly': 'ML Anomaly Detection',
+                    };
+                    return (
+                      <div key={i} style={{
+                        display: "flex", alignItems: "center", gap: "12px",
+                        padding: "10px 0",
+                        borderBottom: i < risk.rules.length - 1 ? "1px solid #0d0d2a" : "none",
+                      }}>
+                        <div style={{
+                          width: "8px", height: "8px", borderRadius: "50%",
+                          background: col, flexShrink: 0,
+                          boxShadow: rule.triggered ? `0 0 6px ${col}` : "none",
+                        }} />
+                        <div style={{ width: "180px", flexShrink: 0 }}>
+                          <div style={{ fontSize: "11px", color: "#fff", fontWeight: "600" }}>{ruleNames[rule.rule] || rule.rule}</div>
+                          <div style={{ fontSize: "9px", color: col, letterSpacing: "1px", marginTop: "2px" }}>{rule.severity}</div>
+                        </div>
+                        <div style={{ flex: 1, fontSize: "11px", color: "#888" }}>{rule.message}</div>
+                        {rule.triggered && (
+                          <div style={{ fontSize: "10px", color: col, whiteSpace: "nowrap" }}>{rule.action}</div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Thresholds reference */}
+                <div style={{ background: "rgba(26,107,255,0.05)", border: "1px solid rgba(26,107,255,0.2)", borderRadius: "8px", padding: "14px 18px" }}>
+                  <div style={{ fontSize: "10px", color: "#1a6bff", letterSpacing: "1px", marginBottom: "10px" }}>RISK THRESHOLDS (INDUSTRY STANDARD)</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "8px" }}>
+                    {[
+                      { label: "Max Drawdown", value: "15%" },
+                      { label: "Stock Stop Loss", value: "12%" },
+                      { label: "Factor Concentration", value: "60%" },
+                      { label: "Correlation Spike", value: "0.75" },
+                      { label: "Regime Drop (5d)", value: "20pts" },
+                      { label: "Critical Regime", value: "< 15" },
+                    ].map(t => (
+                      <div key={t.label} style={{ padding: "8px 10px", background: "#0d0d1a", borderRadius: "6px" }}>
+                        <div style={{ fontSize: "9px", color: "#555", marginBottom: "2px" }}>{t.label}</div>
+                        <div style={{ fontSize: "13px", color: "#fff", fontFamily: "monospace", fontWeight: "700" }}>{t.value}</div>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>

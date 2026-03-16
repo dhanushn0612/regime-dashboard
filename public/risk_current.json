@@ -1,0 +1,89 @@
+{
+  "date": "2026-03-16",
+  "regime_label": "Mild Bear",
+  "composite_score": 22.0,
+  "aggregate": {
+    "risk_score": 60,
+    "max_severity": "ALERT",
+    "color": "#ff6b6b",
+    "triggered_count": 2,
+    "overall_message": "Alert \u2014 reduce exposure by 30%",
+    "position_size_mult": 0.7,
+    "adjusted_equity_pct": 10.5,
+    "base_equity_pct": 15.0
+  },
+  "rules": [
+    {
+      "rule": "portfolio_drawdown",
+      "triggered": false,
+      "severity": "INFO",
+      "message": "No positions \u2014 drawdown not applicable",
+      "drawdown_pct": 0.0
+    },
+    {
+      "rule": "stock_stop_loss",
+      "triggered": false,
+      "severity": "INFO",
+      "breaches": [],
+      "clean_positions": 0,
+      "threshold_pct": -12.0,
+      "message": "All 0 positions within stop loss limits",
+      "action": "Monitor",
+      "size_multiplier": 1.0
+    },
+    {
+      "rule": "factor_concentration",
+      "triggered": false,
+      "severity": "INFO",
+      "message": "No positions",
+      "factor_scores": {}
+    },
+    {
+      "rule": "correlation_spike",
+      "triggered": false,
+      "severity": "INFO",
+      "message": "Fewer than 2 positions \u2014 correlation not applicable",
+      "avg_correlation": 0.0
+    },
+    {
+      "rule": "regime_deterioration",
+      "triggered": true,
+      "severity": "ALERT",
+      "current_score": 22.0,
+      "score_5d_ago": 47.9,
+      "score_change_5d": -25.9,
+      "is_critical": false,
+      "is_rapid_drop": true,
+      "message": "Regime: 22.0 (-25.9 in 5 periods) \u2014 RAPID DETERIORATION",
+      "action": "Reduce 30% exposure",
+      "size_multiplier": 0.7
+    },
+    {
+      "rule": "market_anomaly",
+      "triggered": "True",
+      "severity": "ALERT",
+      "anomaly_score": -0.7324,
+      "is_anomaly": "True",
+      "most_unusual_dim": "volatility",
+      "z_score": -3.56,
+      "z_scores": {
+        "trend": -3.01,
+        "volatility": -3.56,
+        "breadth": 0.0,
+        "flow": -1.57,
+        "composite": -3.21
+      },
+      "message": "Market ANOMALY DETECTED \u2014 volatility dimension -3.6 std devs from historical mean",
+      "action": "Reduce 30% exposure",
+      "size_multiplier": 0.7
+    }
+  ],
+  "thresholds": {
+    "max_drawdown": 0.15,
+    "stock_stop_loss": 0.12,
+    "factor_concentration": 0.6,
+    "correlation_spike": 0.75,
+    "regime_drop_5d": 20.0,
+    "regime_drop_critical": 15.0
+  }
+}
