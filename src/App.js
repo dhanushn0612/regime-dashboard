@@ -230,6 +230,7 @@ export default function App() {
   const [activeTab, setActiveTab] = useState("overview");
   const [sector, setSector] = useState(null);
   const [screener, setScreener] = useState(null);
+  const [portfolio, setPortfolio] = useState(null);
 
   useEffect(() => {
     Promise.all([
@@ -237,12 +238,14 @@ export default function App() {
       fetch('/regime_history.json').then(r => r.json()),
       fetch('/sector_current.json').then(r => r.json()).catch(() => null),
       fetch('/screener_current.json').then(r => r.json()).catch(() => null),
+      fetch('/portfolio_current.json').then(r => r.json()).catch(() => null),
     ])
-      .then(([curr, hist, sec, scr]) => {
+      .then(([curr, hist, sec, scr, port]) => {
         setCurrent(curr);
         setHistory(hist);
         setSector(sec);
         setScreener(scr);
+        setPortfolio(port);
         setLoading(false);
       })
       .catch(e => {
@@ -265,7 +268,7 @@ export default function App() {
   );
 
   const cfg = REGIME_CONFIG[current.regime_label] || { color: "#aaa", bg: "transparent" };
-  const tabs = ["overview", "dimensions", "history", "sectors", "screener", "signals"];
+  const tabs = ["overview", "dimensions", "history", "sectors", "screener", "portfolio", "signals"];
   const regimeDist = history.reduce((acc, d) => { acc[d.regime_label] = (acc[d.regime_label] || 0) + 1; return acc; }, {});
 
   return (
@@ -552,6 +555,140 @@ export default function App() {
                         <div style={{ fontSize: "9px", color: "#555" }}>{r.score}</div>
                       </div>
                     ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+
+        {activeTab === "portfolio" && (
+          <div>
+            {!portfolio ? (
+              <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "32px", textAlign: "center" }}>
+                <div style={{ fontSize: "11px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>NO PORTFOLIO DATA</div>
+                <div style={{ fontSize: "12px", color: "#888" }}>Run python data_pipeline/portfolio_construction.py to generate portfolio.</div>
+              </div>
+            ) : (
+              <div>
+                {/* Header */}
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "12px", marginBottom: "16px" }}>
+                  {[
+                    { label: "EQUITY", value: Math.round(portfolio.equity_allocation * 100) + "%", color: portfolio.equity_allocation > 0.5 ? "#00ff87" : "#ffd166" },
+                    { label: "CASH", value: Math.round(portfolio.cash_allocation * 100) + "%", color: "#888" },
+                    { label: "POSITIONS", value: portfolio.positions?.length || 0, color: "#00d4ff" },
+                    { label: "STATUS", value: portfolio.status === "cash_mode" ? "CASH" : "ACTIVE", color: portfolio.status === "cash_mode" ? "#ff6b6b" : "#00ff87" },
+                  ].map(m => (
+                    <div key={m.label} style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "16px", textAlign: "center" }}>
+                      <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>{m.label}</div>
+                      <div style={{ fontSize: "28px", fontWeight: "700", color: m.color, fontFamily: "monospace" }}>{m.value}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Analytics */}
+                {portfolio.analytics && Object.keys(portfolio.analytics).length > 0 && (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>PORTFOLIO ANALYTICS</div>
+                    <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+                      {[
+                        { label: "Exp. Return", value: portfolio.analytics.expected_return_pct?.toFixed(1) + "%", color: "#00ff87" },
+                        { label: "Exp. Volatility", value: portfolio.analytics.expected_vol_pct?.toFixed(1) + "%", color: "#ffd166" },
+                        { label: "Sharpe Ratio", value: portfolio.analytics.sharpe_ratio?.toFixed(2), color: "#00d4ff" },
+                        { label: "Eff. Stocks", value: portfolio.analytics.effective_n_stocks?.toFixed(1), color: "#bf5af2" },
+                      ].map(a => (
+                        <div key={a.label} style={{ textAlign: "center" }}>
+                          <div style={{ fontSize: "22px", fontWeight: "700", color: a.color, fontFamily: "monospace" }}>{a.value}</div>
+                          <div style={{ fontSize: "9px", color: "#555", marginTop: "4px" }}>{a.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                    {portfolio.transaction_costs?.total_cost_bps > 0 && (
+                      <div style={{ marginTop: "12px", padding: "8px 12px", background: "rgba(255,107,107,0.08)", borderRadius: "6px", fontSize: "10px", color: "#ff6b6b" }}>
+                        Transaction cost: {portfolio.transaction_costs.total_cost_bps?.toFixed(1)} bps  ·  Rs {portfolio.transaction_costs.total_cost?.toLocaleString()} on Rs 10L portfolio
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Rebalance status */}
+                <div style={{
+                  background: portfolio.rebalance_needed ? "rgba(255,209,102,0.08)" : "rgba(0,200,150,0.08)",
+                  border: `1px solid ${portfolio.rebalance_needed ? "#ffd16630" : "#00c89630"}`,
+                  borderRadius: "8px", padding: "12px 16px", marginBottom: "16px",
+                  fontSize: "10px", color: portfolio.rebalance_needed ? "#ffd166" : "#00c896", letterSpacing: "1px",
+                }}>
+                  {portfolio.rebalance_needed ? "REBALANCE REQUIRED" : "NO REBALANCE NEEDED"}
+                  <span style={{ color: "#888", marginLeft: "12px", fontWeight: "400" }}>{portfolio.rebalance_reason}</span>
+                </div>
+
+                {/* Positions table */}
+                {portfolio.positions && portfolio.positions.length > 0 ? (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px", overflowX: "auto" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>POSITIONS — MEAN-VARIANCE OPTIMISED</div>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "monospace", fontSize: "11px", minWidth: "650px" }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid #1a1a2e" }}>
+                          {["TICKER", "PORTFOLIO WT", "EQUITY WT", "EXP RET", "SECTOR", "ML SCORE"].map(h => (
+                            <td key={h} style={{ padding: "6px 8px", color: "#555", fontSize: "9px", letterSpacing: "1px" }}>{h}</td>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {portfolio.positions.map((p, i) => (
+                          <tr key={i} style={{ borderBottom: "1px solid #0d0d2a" }}>
+                            <td style={{ padding: "10px 8px", color: "#fff", fontWeight: "700" }}>{p.name}</td>
+                            <td style={{ padding: "10px 8px", color: "#00ff87" }}>{(p.target_weight * 100).toFixed(1)}%</td>
+                            <td style={{ padding: "10px 8px", color: "#7dffb3" }}>{(p.equity_weight * 100).toFixed(1)}%</td>
+                            <td style={{ padding: "10px 8px", color: p.expected_ret >= 0 ? "#7dffb3" : "#ff6b6b" }}>
+                              {p.expected_ret >= 0 ? "+" : ""}{p.expected_ret?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: "#888" }}>{p.sector}</td>
+                            <td style={{ padding: "10px 8px", color: "#00d4ff" }}>{p.ml_score?.toFixed(1)}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "32px", marginBottom: "16px", textAlign: "center" }}>
+                    <div style={{ fontSize: "11px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>CASH MODE</div>
+                    <div style={{ fontSize: "12px", color: "#888" }}>
+                      {portfolio.note || "Regime too weak for equity deployment."}
+                    </div>
+                    <div style={{ fontSize: "11px", color: "#ffd166", marginTop: "8px" }}>
+                      {Math.round(portfolio.equity_allocation * 100)}% equity  ·  {Math.round(portfolio.cash_allocation * 100)}% cash
+                    </div>
+                  </div>
+                )}
+
+                {/* Sector breakdown */}
+                {portfolio.analytics?.sector_weights && Object.keys(portfolio.analytics.sector_weights).length > 0 && (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>SECTOR BREAKDOWN</div>
+                    {Object.entries(portfolio.analytics.sector_weights).sort((a,b) => b[1]-a[1]).map(([sec, wt]) => (
+                      <div key={sec} style={{ marginBottom: "8px" }}>
+                        <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "3px" }}>
+                          <span style={{ fontSize: "11px", color: "#aaa" }}>{sec}</span>
+                          <span style={{ fontSize: "11px", color: "#00ff87", fontFamily: "monospace" }}>{(wt*100).toFixed(1)}%</span>
+                        </div>
+                        <div style={{ height: "4px", background: "#1a1a2e", borderRadius: "2px" }}>
+                          <div style={{ width: `${wt*100}%`, height: "100%", background: "#00ff87", borderRadius: "2px" }} />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Methodology note */}
+                <div style={{ background: "rgba(26,107,255,0.05)", border: "1px solid rgba(26,107,255,0.2)", borderRadius: "8px", padding: "14px 18px" }}>
+                  <div style={{ fontSize: "10px", color: "#1a6bff", letterSpacing: "1px", marginBottom: "6px" }}>METHODOLOGY</div>
+                  <div style={{ fontSize: "10px", color: "#888", lineHeight: 1.6 }}>
+                    Weights computed via Maximum Sharpe Ratio optimisation using Ledoit-Wolf shrinkage covariance estimator.
+                    Expected returns blend 3M momentum (40%), ML score premium (40%), and mean-reversion adjustment (20%).
+                    Total equity exposure scaled by regime: {Math.round(portfolio.equity_allocation*100)}% in current {portfolio.regime_label} regime.
+                    Transaction costs: 20bps large cap, 40bps mid cap round-trip.
                   </div>
                 </div>
               </div>
