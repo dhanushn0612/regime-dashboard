@@ -36,6 +36,7 @@ jobs:
           git config user.email "bot@regime.app"
           git add public/regime_current.json public/regime_history.json
           git add public/sector_current.json public/sector_history.json
-          git add data_pipeline/sector_model.pkl || true
-          git diff --staged --quiet || git commit -m "📊 Regime + sector update $(date +'%Y-%m-%d')"
+          git add public/screener_current.json
+          git add data_pipeline/fundamental_cache.csv || true
+          git diff --staged --quiet || git commit -m "📊 Daily update $(date +'%Y-%m-%d')"
           git push
