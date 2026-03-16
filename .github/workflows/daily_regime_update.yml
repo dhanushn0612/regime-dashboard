@@ -20,7 +20,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install yfinance pandas numpy requests xgboost scikit-learn
+          pip install yfinance pandas numpy requests xgboost scikit-learn tradingview-scraper beautifulsoup4
 
       - name: Run regime classifier
         run: |
