@@ -23,7 +23,7 @@
     },
     "volatility": {
       "india_vix": 22.65,
-      "vix_20d_change_pct": 70.39,
+      "vix_20d_change_pct": 70.43,
       "rv_ratio": 1.352,
       "vix_stability_std": 2.905
     },
@@ -36,7 +36,7 @@
     "flow": {
       "data_source": "price_proxy",
       "note": "Run fii_dii_scraper.py to unlock real flow data",
-      "vix_slope_20d": 0.4678
+      "vix_slope_20d": 0.468
     }
   }
 }
