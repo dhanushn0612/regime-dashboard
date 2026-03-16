@@ -64,6 +64,142 @@ const DimBar = ({ label, score, weight }) => {
       </div>
       <div style={{ height: "6px", background: "#1a1a2e", borderRadius: "3px", overflow: "hidden" }}>
         <div style={{ width: `${score}%`, height: "100%", background: color, borderRadius: "3px", boxShadow: `0 0 8px ${color}80` }} />
+
+        {activeTab === "sectors" && (
+          <div>
+            {!sector ? (
+              <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "32px", textAlign: "center" }}>
+                <div style={{ fontSize: "11px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>NO SECTOR DATA</div>
+                <div style={{ fontSize: "12px", color: "#888" }}>Run python data_pipeline/sector_rotation.py to generate sector allocations.</div>
+              </div>
+            ) : (
+              <div>
+                {/* Header */}
+                <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                    <div>
+                      <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "4px" }}>SECTOR ROTATION ENGINE</div>
+                      <div style={{ fontSize: "11px", color: "#888" }}>{sector.date} · {sector.model_used}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: "28px", fontWeight: "700", color: sector.sectors_held === 0 ? "#ff2d55" : "#00ff87", fontFamily: "monospace" }}>
+                        {sector.sectors_held === 0 ? "CASH" : `${sector.sectors_held} SECTORS`}
+                      </div>
+                      <div style={{ fontSize: "10px", color: "#888", marginTop: "2px" }}>
+                        {Math.round(sector.cash_weight * 100)}% cash
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action box */}
+                  <div style={{
+                    background: sector.sectors_held === 0 ? "rgba(255,45,85,0.08)" : "rgba(0,255,135,0.08)",
+                    border: `1px solid ${sector.sectors_held === 0 ? "#ff2d5530" : "#00ff8730"}`,
+                    borderRadius: "6px", padding: "10px 14px",
+                  }}>
+                    <div style={{ fontSize: "10px", color: sector.sectors_held === 0 ? "#ff2d55" : "#00ff87", letterSpacing: "1px" }}>
+                      {sector.sectors_held === 0
+                        ? "STRONG BEAR — Full cash. No sector deployment until regime recovers above 20."
+                        : `DEPLOYING INTO ${sector.sectors_held} SECTOR${sector.sectors_held > 1 ? "S" : ""}`}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Allocations table */}
+                {sector.allocations && sector.allocations.length > 0 ? (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>CURRENT ALLOCATIONS</div>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "monospace", fontSize: "12px" }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid #1a1a2e" }}>
+                          {["SECTOR", "WEIGHT", "PRED RET", "1M", "3M", "RATIONALE"].map(h => (
+                            <td key={h} style={{ padding: "6px 8px", color: "#555", fontSize: "9px", letterSpacing: "1px" }}>{h}</td>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sector.allocations.map((a, i) => (
+                          <tr key={i} style={{ borderBottom: "1px solid #0d0d2a" }}>
+                            <td style={{ padding: "10px 8px", color: "#00ff87", fontWeight: "700" }}>{a.sector}</td>
+                            <td style={{ padding: "10px 8px", color: "#fff" }}>{(a.weight * 100).toFixed(1)}%</td>
+                            <td style={{ padding: "10px 8px", color: a.predicted_ret >= 0 ? "#00ff87" : "#ff2d55" }}>
+                              {a.predicted_ret >= 0 ? "+" : ""}{a.predicted_ret?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: a.ret_1m >= 0 ? "#7dffb3" : "#ff6b6b" }}>
+                              {a.ret_1m >= 0 ? "+" : ""}{a.ret_1m?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: a.ret_3m >= 0 ? "#7dffb3" : "#ff6b6b" }}>
+                              {a.ret_3m >= 0 ? "+" : ""}{a.ret_3m?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: "#666", fontSize: "11px" }}>{a.rationale}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>NO ACTIVE ALLOCATIONS</div>
+                    <div style={{ fontSize: "12px", color: "#888" }}>
+                      Regime too weak to deploy. All {sector.excluded_sectors?.length || 0} sectors failed rule filter.
+                    </div>
+                  </div>
+                )}
+
+                {/* Excluded sectors */}
+                {sector.excluded_sectors && sector.excluded_sectors.length > 0 && (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>
+                      EXCLUDED BY RULES ({sector.excluded_sectors.length} sectors)
+                    </div>
+                    {sector.excluded_sectors.map((e, i) => (
+                      <div key={i} style={{
+                        display: "flex", justifyContent: "space-between", alignItems: "center",
+                        padding: "8px 0", borderBottom: i < sector.excluded_sectors.length - 1 ? "1px solid #0d0d2a" : "none",
+                      }}>
+                        <span style={{ color: "#ff6b6b", fontFamily: "monospace", fontSize: "12px", fontWeight: "700" }}>
+                          {e.sector}
+                        </span>
+                        <span style={{ color: "#555", fontSize: "11px", fontFamily: "monospace" }}>
+                          {e.reasons?.join("  ·  ")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Regime context */}
+                <div style={{
+                  background: "rgba(255,209,102,0.05)", border: "1px solid rgba(255,209,102,0.2)",
+                  borderRadius: "8px", padding: "14px 18px",
+                }}>
+                  <div style={{ fontSize: "10px", color: "#ffd166", letterSpacing: "1px", marginBottom: "6px" }}>
+                    HOW SECTOR COUNT IS DETERMINED
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "8px", marginTop: "8px" }}>
+                    {[
+                      { score: "75-100", label: "Strong Bull", n: 4 },
+                      { score: "55-75",  label: "Mild Bull",   n: 3 },
+                      { score: "40-55",  label: "Neutral",     n: 2 },
+                      { score: "20-40",  label: "Mild Bear",   n: 1 },
+                      { score: "0-20",   label: "Strong Bear", n: 0 },
+                    ].map(r => (
+                      <div key={r.label} style={{
+                        background: sector.regime_label === r.label ? "rgba(255,209,102,0.1)" : "transparent",
+                        border: `1px solid ${sector.regime_label === r.label ? "#ffd16640" : "#1a1a2e"}`,
+                        borderRadius: "6px", padding: "8px", textAlign: "center",
+                      }}>
+                        <div style={{ fontSize: "18px", fontWeight: "700", color: "#ffd166", fontFamily: "monospace" }}>{r.n}</div>
+                        <div style={{ fontSize: "9px", color: "#888", marginTop: "2px" }}>{r.label}</div>
+                        <div style={{ fontSize: "9px", color: "#555" }}>{r.score}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -92,15 +228,21 @@ export default function App() {
   const [loading, setLoading]   = useState(true);
   const [error, setError]       = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [sector, setSector] = useState(null);
+  const [screener, setScreener] = useState(null);
 
   useEffect(() => {
     Promise.all([
       fetch('/regime_current.json').then(r => r.json()),
       fetch('/regime_history.json').then(r => r.json()),
+      fetch('/sector_current.json').then(r => r.json()).catch(() => null),
+      fetch('/screener_current.json').then(r => r.json()).catch(() => null),
     ])
-      .then(([curr, hist]) => {
+      .then(([curr, hist, sec, scr]) => {
         setCurrent(curr);
         setHistory(hist);
+        setSector(sec);
+        setScreener(scr);
         setLoading(false);
       })
       .catch(e => {
@@ -123,7 +265,7 @@ export default function App() {
   );
 
   const cfg = REGIME_CONFIG[current.regime_label] || { color: "#aaa", bg: "transparent" };
-  const tabs = ["overview", "dimensions", "history", "signals"];
+  const tabs = ["overview", "dimensions", "history", "sectors", "screener", "signals"];
   const regimeDist = history.reduce((acc, d) => { acc[d.regime_label] = (acc[d.regime_label] || 0) + 1; return acc; }, {});
 
   return (
@@ -291,6 +433,132 @@ export default function App() {
           </div>
         )}
 
+
+        {activeTab === "screener" && (
+          <div>
+            {!screener ? (
+              <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "32px", textAlign: "center" }}>
+                <div style={{ fontSize: "11px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>NO SCREENER DATA</div>
+                <div style={{ fontSize: "12px", color: "#888" }}>Run python data_pipeline/stock_screener.py to generate stock rankings.</div>
+              </div>
+            ) : (
+              <div>
+                {/* Header */}
+                <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                    <div>
+                      <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "4px" }}>STOCK SCREENER — LAYER 3</div>
+                      <div style={{ fontSize: "11px", color: "#888" }}>{screener.date} · {screener.stocks_screened} stocks screened · {screener.stocks_passed} passed filters</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: "28px", fontWeight: "700", color: screener.stocks_selected === 0 ? "#ff6b6b" : "#00ff87", fontFamily: "monospace" }}>
+                        {screener.stocks_selected === 0 ? "WATCH" : screener.stocks_selected}
+                      </div>
+                      <div style={{ fontSize: "10px", color: "#888", marginTop: "2px" }}>
+                        {screener.stocks_selected === 0 ? "list only" : "selected stocks"}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{
+                    background: screener.stocks_selected === 0 ? "rgba(255,107,107,0.08)" : "rgba(0,255,135,0.08)",
+                    border: `1px solid ${screener.stocks_selected === 0 ? "#ff6b6b30" : "#00ff8730"}`,
+                    borderRadius: "6px", padding: "10px 14px", fontSize: "10px",
+                    color: screener.stocks_selected === 0 ? "#ff6b6b" : "#00ff87", letterSpacing: "1px",
+                  }}>
+                    {screener.note}
+                  </div>
+                </div>
+
+                {/* Factor legend */}
+                <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px", marginBottom: "16px" }}>
+                  {[
+                    { label: "MOMENTUM", key: "f_momentum", color: "#00d4ff", desc: "1M/3M/6M/12M price" },
+                    { label: "QUALITY",  key: "f_quality",  color: "#bf5af2", desc: "Trend + vol confirm" },
+                    { label: "LOW VOL",  key: "f_lowvol",   color: "#ffd166", desc: "Vol + drawdown" },
+                    { label: "EARNINGS", key: "f_earnings", color: "#00ff87", desc: "Growth consistency" },
+                  ].map(f => (
+                    <div key={f.key} style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "6px", padding: "10px 12px" }}>
+                      <div style={{ fontSize: "9px", color: f.color, letterSpacing: "1px", marginBottom: "2px" }}>{f.label}</div>
+                      <div style={{ fontSize: "9px", color: "#555" }}>{f.desc}</div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Stock table */}
+                {screener.stocks && screener.stocks.length > 0 ? (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px", overflowX: "auto" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>
+                      SELECTED STOCKS — RANKED BY ML SCORE
+                    </div>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "monospace", fontSize: "11px", minWidth: "700px" }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid #1a1a2e" }}>
+                          {["#", "TICKER", "SCORE", "MOM", "QUAL", "VOL", "EARN", "3M", "1M", "VOL%", "MAX DD"].map(h => (
+                            <td key={h} style={{ padding: "6px 8px", color: "#555", fontSize: "9px", letterSpacing: "1px" }}>{h}</td>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {screener.stocks.map((st, i) => (
+                          <tr key={i} style={{ borderBottom: "1px solid #0d0d2a" }}>
+                            <td style={{ padding: "10px 8px", color: "#555", fontSize: "10px" }}>{i + 1}</td>
+                            <td style={{ padding: "10px 8px", color: "#fff", fontWeight: "700" }}>{st.name}</td>
+                            <td style={{ padding: "10px 8px", color: "#00ff87" }}>{st.ml_score?.toFixed(1)}</td>
+                            <td style={{ padding: "10px 8px", color: "#00d4ff" }}>{st.f_momentum?.toFixed(0)}</td>
+                            <td style={{ padding: "10px 8px", color: "#bf5af2" }}>{st.f_quality?.toFixed(0)}</td>
+                            <td style={{ padding: "10px 8px", color: "#ffd166" }}>{st.f_lowvol?.toFixed(0)}</td>
+                            <td style={{ padding: "10px 8px", color: "#00ff87" }}>{st.f_earnings?.toFixed(0)}</td>
+                            <td style={{ padding: "10px 8px", color: st.ret_3m >= 0 ? "#7dffb3" : "#ff6b6b" }}>
+                              {st.ret_3m >= 0 ? "+" : ""}{st.ret_3m?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: st.ret_1m >= 0 ? "#7dffb3" : "#ff6b6b" }}>
+                              {st.ret_1m >= 0 ? "+" : ""}{st.ret_1m?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: "#888" }}>{st.ann_vol_pct?.toFixed(0)}%</td>
+                            <td style={{ padding: "10px 8px", color: "#ff6b6b" }}>{st.max_dd_pct?.toFixed(0)}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "32px", marginBottom: "16px", textAlign: "center" }}>
+                    <div style={{ fontSize: "11px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>WATCHLIST MODE</div>
+                    <div style={{ fontSize: "12px", color: "#888" }}>
+                      {screener.stocks_passed} stocks passed quality filters but regime is too weak for deployment.
+                      These will become buy candidates when regime recovers above 40.
+                    </div>
+                  </div>
+                )}
+
+                {/* Regime stock count guide */}
+                <div style={{ background: "rgba(0,212,255,0.05)", border: "1px solid rgba(0,212,255,0.2)", borderRadius: "8px", padding: "14px 18px" }}>
+                  <div style={{ fontSize: "10px", color: "#00d4ff", letterSpacing: "1px", marginBottom: "8px" }}>REGIME-DEPENDENT STOCK COUNT</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: "8px" }}>
+                    {[
+                      { label: "Strong Bull", n: 15, score: "75-100" },
+                      { label: "Mild Bull",   n: 10, score: "55-75" },
+                      { label: "Neutral",     n: 5,  score: "40-55" },
+                      { label: "Mild Bear",   n: 0,  score: "20-40" },
+                      { label: "Strong Bear", n: 0,  score: "0-20" },
+                    ].map(r => (
+                      <div key={r.label} style={{
+                        background: screener.regime_label === r.label ? "rgba(0,212,255,0.1)" : "transparent",
+                        border: `1px solid ${screener.regime_label === r.label ? "#00d4ff40" : "#1a1a2e"}`,
+                        borderRadius: "6px", padding: "8px", textAlign: "center",
+                      }}>
+                        <div style={{ fontSize: "18px", fontWeight: "700", color: "#00d4ff", fontFamily: "monospace" }}>{r.n}</div>
+                        <div style={{ fontSize: "9px", color: "#888", marginTop: "2px" }}>{r.label}</div>
+                        <div style={{ fontSize: "9px", color: "#555" }}>{r.score}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {activeTab === "signals" && (
           <div>
             <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
@@ -334,6 +602,142 @@ export default function App() {
                 Call: <span style={{ color: "#ffd166" }}>classifier.load_data(fii_dii_df=df)</span>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === "sectors" && (
+          <div>
+            {!sector ? (
+              <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "32px", textAlign: "center" }}>
+                <div style={{ fontSize: "11px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>NO SECTOR DATA</div>
+                <div style={{ fontSize: "12px", color: "#888" }}>Run python data_pipeline/sector_rotation.py to generate sector allocations.</div>
+              </div>
+            ) : (
+              <div>
+                {/* Header */}
+                <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+                    <div>
+                      <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "4px" }}>SECTOR ROTATION ENGINE</div>
+                      <div style={{ fontSize: "11px", color: "#888" }}>{sector.date} · {sector.model_used}</div>
+                    </div>
+                    <div style={{ textAlign: "right" }}>
+                      <div style={{ fontSize: "28px", fontWeight: "700", color: sector.sectors_held === 0 ? "#ff2d55" : "#00ff87", fontFamily: "monospace" }}>
+                        {sector.sectors_held === 0 ? "CASH" : `${sector.sectors_held} SECTORS`}
+                      </div>
+                      <div style={{ fontSize: "10px", color: "#888", marginTop: "2px" }}>
+                        {Math.round(sector.cash_weight * 100)}% cash
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action box */}
+                  <div style={{
+                    background: sector.sectors_held === 0 ? "rgba(255,45,85,0.08)" : "rgba(0,255,135,0.08)",
+                    border: `1px solid ${sector.sectors_held === 0 ? "#ff2d5530" : "#00ff8730"}`,
+                    borderRadius: "6px", padding: "10px 14px",
+                  }}>
+                    <div style={{ fontSize: "10px", color: sector.sectors_held === 0 ? "#ff2d55" : "#00ff87", letterSpacing: "1px" }}>
+                      {sector.sectors_held === 0
+                        ? "STRONG BEAR — Full cash. No sector deployment until regime recovers above 20."
+                        : `DEPLOYING INTO ${sector.sectors_held} SECTOR${sector.sectors_held > 1 ? "S" : ""}`}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Allocations table */}
+                {sector.allocations && sector.allocations.length > 0 ? (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>CURRENT ALLOCATIONS</div>
+                    <table style={{ width: "100%", borderCollapse: "collapse", fontFamily: "monospace", fontSize: "12px" }}>
+                      <thead>
+                        <tr style={{ borderBottom: "1px solid #1a1a2e" }}>
+                          {["SECTOR", "WEIGHT", "PRED RET", "1M", "3M", "RATIONALE"].map(h => (
+                            <td key={h} style={{ padding: "6px 8px", color: "#555", fontSize: "9px", letterSpacing: "1px" }}>{h}</td>
+                          ))}
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sector.allocations.map((a, i) => (
+                          <tr key={i} style={{ borderBottom: "1px solid #0d0d2a" }}>
+                            <td style={{ padding: "10px 8px", color: "#00ff87", fontWeight: "700" }}>{a.sector}</td>
+                            <td style={{ padding: "10px 8px", color: "#fff" }}>{(a.weight * 100).toFixed(1)}%</td>
+                            <td style={{ padding: "10px 8px", color: a.predicted_ret >= 0 ? "#00ff87" : "#ff2d55" }}>
+                              {a.predicted_ret >= 0 ? "+" : ""}{a.predicted_ret?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: a.ret_1m >= 0 ? "#7dffb3" : "#ff6b6b" }}>
+                              {a.ret_1m >= 0 ? "+" : ""}{a.ret_1m?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: a.ret_3m >= 0 ? "#7dffb3" : "#ff6b6b" }}>
+                              {a.ret_3m >= 0 ? "+" : ""}{a.ret_3m?.toFixed(1)}%
+                            </td>
+                            <td style={{ padding: "10px 8px", color: "#666", fontSize: "11px" }}>{a.rationale}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "8px" }}>NO ACTIVE ALLOCATIONS</div>
+                    <div style={{ fontSize: "12px", color: "#888" }}>
+                      Regime too weak to deploy. All {sector.excluded_sectors?.length || 0} sectors failed rule filter.
+                    </div>
+                  </div>
+                )}
+
+                {/* Excluded sectors */}
+                {sector.excluded_sectors && sector.excluded_sectors.length > 0 && (
+                  <div style={{ background: "#0d0d1a", border: "1px solid #1a1a2e", borderRadius: "8px", padding: "18px", marginBottom: "16px" }}>
+                    <div style={{ fontSize: "9px", color: "#555", letterSpacing: "2px", marginBottom: "14px" }}>
+                      EXCLUDED BY RULES ({sector.excluded_sectors.length} sectors)
+                    </div>
+                    {sector.excluded_sectors.map((e, i) => (
+                      <div key={i} style={{
+                        display: "flex", justifyContent: "space-between", alignItems: "center",
+                        padding: "8px 0", borderBottom: i < sector.excluded_sectors.length - 1 ? "1px solid #0d0d2a" : "none",
+                      }}>
+                        <span style={{ color: "#ff6b6b", fontFamily: "monospace", fontSize: "12px", fontWeight: "700" }}>
+                          {e.sector}
+                        </span>
+                        <span style={{ color: "#555", fontSize: "11px", fontFamily: "monospace" }}>
+                          {e.reasons?.join("  ·  ")}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Regime context */}
+                <div style={{
+                  background: "rgba(255,209,102,0.05)", border: "1px solid rgba(255,209,102,0.2)",
+                  borderRadius: "8px", padding: "14px 18px",
+                }}>
+                  <div style={{ fontSize: "10px", color: "#ffd166", letterSpacing: "1px", marginBottom: "6px" }}>
+                    HOW SECTOR COUNT IS DETERMINED
+                  </div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: "8px", marginTop: "8px" }}>
+                    {[
+                      { score: "75-100", label: "Strong Bull", n: 4 },
+                      { score: "55-75",  label: "Mild Bull",   n: 3 },
+                      { score: "40-55",  label: "Neutral",     n: 2 },
+                      { score: "20-40",  label: "Mild Bear",   n: 1 },
+                      { score: "0-20",   label: "Strong Bear", n: 0 },
+                    ].map(r => (
+                      <div key={r.label} style={{
+                        background: sector.regime_label === r.label ? "rgba(255,209,102,0.1)" : "transparent",
+                        border: `1px solid ${sector.regime_label === r.label ? "#ffd16640" : "#1a1a2e"}`,
+                        borderRadius: "6px", padding: "8px", textAlign: "center",
+                      }}>
+                        <div style={{ fontSize: "18px", fontWeight: "700", color: "#ffd166", fontFamily: "monospace" }}>{r.n}</div>
+                        <div style={{ fontSize: "9px", color: "#888", marginTop: "2px" }}>{r.label}</div>
+                        <div style={{ fontSize: "9px", color: "#555" }}>{r.score}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
