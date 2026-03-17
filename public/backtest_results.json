@@ -1,0 +1,465 @@
+{
+  "run_date": "2026-03-17",
+  "metrics": {
+    "period_months": 25,
+    "port_total_ret": -1.46,
+    "nifty_total_ret": -4.12,
+    "port_ann_ret": -0.7,
+    "nifty_ann_ret": -2.0,
+    "alpha_ann": 1.3,
+    "sharpe_strategy": -1.02,
+    "sharpe_benchmark": -0.63,
+    "information_ratio": 0.11,
+    "max_drawdown_pct": -11.09,
+    "nifty_max_dd_pct": -16.91,
+    "calmar_ratio": -0.06,
+    "win_rate_vs_nifty": 48.0,
+    "beta": 0.5,
+    "correlation": 0.86,
+    "regime_breakdown": {
+      "1": {
+        "months": 2,
+        "port_avg": 0.0,
+        "nifty_avg": -2.15,
+        "alpha_avg": 2.15,
+        "win_rate": 50.0
+      },
+      "2": {
+        "months": 12,
+        "port_avg": 0.06,
+        "nifty_avg": 0.67,
+        "alpha_avg": -0.61,
+        "win_rate": 33.3
+      },
+      "3": {
+        "months": 9,
+        "port_avg": 0.07,
+        "nifty_avg": -0.37,
+        "alpha_avg": 0.44,
+        "win_rate": 66.7
+      },
+      "4": {
+        "months": 2,
+        "port_avg": -1.16,
+        "nifty_avg": -1.52,
+        "alpha_avg": 0.36,
+        "win_rate": 50.0
+      }
+    }
+  },
+  "monthly": [
+    {
+      "date": "2024-02-29",
+      "regime_code": 2,
+      "regime_score": 45.2,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": 2.72,
+      "nifty_ret": 3.109,
+      "alpha": -0.389,
+      "tickers": [
+        "RELIANCE.NS",
+        "LT.NS",
+        "ICICIBANK.NS",
+        "BHARTIARTL.NS",
+        "MARUTI.NS"
+      ]
+    },
+    {
+      "date": "2024-03-31",
+      "regime_code": 2,
+      "regime_score": 52.3,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": -0.173,
+      "nifty_ret": -1.217,
+      "alpha": 1.043,
+      "tickers": [
+        "HDFCBANK.NS",
+        "RELIANCE.NS",
+        "LT.NS",
+        "ICICIBANK.NS",
+        "BHARTIARTL.NS"
+      ]
+    },
+    {
+      "date": "2024-04-30",
+      "regime_code": 3,
+      "regime_score": 64.5,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": 1.434,
+      "nifty_ret": 3.032,
+      "alpha": -1.598,
+      "tickers": [
+        "HDFCBANK.NS",
+        "RELIANCE.NS",
+        "LT.NS",
+        "MRPL.NS",
+        "ICICIBANK.NS"
+      ]
+    },
+    {
+      "date": "2024-05-31",
+      "regime_code": 2,
+      "regime_score": 51.8,
+      "equity_alloc": 0.45,
+      "n_stocks": 5,
+      "port_ret": 2.857,
+      "nifty_ret": 7.961,
+      "alpha": -5.104,
+      "tickers": [
+        "HDFCBANK.NS",
+        "RELIANCE.NS",
+        "LT.NS",
+        "ICICIBANK.NS",
+        "BHARTIARTL.NS"
+      ]
+    },
+    {
+      "date": "2024-06-30",
+      "regime_code": 4,
+      "regime_score": 75.5,
+      "equity_alloc": 0.9,
+      "n_stocks": 15,
+      "port_ret": 0.921,
+      "nifty_ret": 1.486,
+      "alpha": -0.565,
+      "tickers": [
+        "HDFCBANK.NS",
+        "RELIANCE.NS",
+        "LT.NS",
+        "MRPL.NS",
+        "ICICIBANK.NS"
+      ]
+    },
+    {
+      "date": "2024-07-31",
+      "regime_code": 3,
+      "regime_score": 73.8,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": 2.413,
+      "nifty_ret": 0.361,
+      "alpha": 2.052,
+      "tickers": [
+        "GLENMARK.NS",
+        "EICHERMOT.NS",
+        "TECHM.NS",
+        "INFY.NS",
+        "COLPAL.NS"
+      ]
+    },
+    {
+      "date": "2024-08-31",
+      "regime_code": 3,
+      "regime_score": 68.6,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": 0.235,
+      "nifty_ret": -0.941,
+      "alpha": 1.176,
+      "tickers": [
+        "SUNPHARMA.NS",
+        "COLPAL.NS",
+        "TORNTPHARM.NS",
+        "HINDUNILVR.NS",
+        "ITC.NS"
+      ]
+    },
+    {
+      "date": "2024-09-30",
+      "regime_code": 3,
+      "regime_score": 74.5,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": -4.428,
+      "nifty_ret": -6.442,
+      "alpha": 2.013,
+      "tickers": [
+        "COLPAL.NS",
+        "BRITANNIA.NS",
+        "APOLLOHOSP.NS",
+        "ITC.NS",
+        "SUNPHARMA.NS"
+      ]
+    },
+    {
+      "date": "2024-10-31",
+      "regime_code": 2,
+      "regime_score": 46.2,
+      "equity_alloc": 0.45,
+      "n_stocks": 5,
+      "port_ret": 1.189,
+      "nifty_ret": 1.672,
+      "alpha": -0.483,
+      "tickers": [
+        "APOLLOHOSP.NS",
+        "SUNPHARMA.NS",
+        "BHARTIARTL.NS",
+        "HCLTECH.NS",
+        "HDFCBANK.NS"
+      ]
+    },
+    {
+      "date": "2024-11-30",
+      "regime_code": 2,
+      "regime_score": 53.9,
+      "equity_alloc": 0.45,
+      "n_stocks": 5,
+      "port_ret": -1.749,
+      "nifty_ret": -2.505,
+      "alpha": 0.757,
+      "tickers": [
+        "COFORGE.NS",
+        "ICICIBANK.NS",
+        "HDFCBANK.NS",
+        "DIVISLAB.NS",
+        "FEDERALBNK.NS"
+      ]
+    },
+    {
+      "date": "2024-12-31",
+      "regime_code": 2,
+      "regime_score": 46.4,
+      "equity_alloc": 0.45,
+      "n_stocks": 5,
+      "port_ret": -1.535,
+      "nifty_ret": -1.113,
+      "alpha": -0.421,
+      "tickers": [
+        "APOLLOHOSP.NS",
+        "SUNPHARMA.NS",
+        "HCLTECH.NS",
+        "EICHERMOT.NS",
+        "ICICIBANK.NS"
+      ]
+    },
+    {
+      "date": "2025-01-31",
+      "regime_code": 1,
+      "regime_score": 32.5,
+      "equity_alloc": 0.15,
+      "n_stocks": 0,
+      "port_ret": 0.0,
+      "nifty_ret": -4.458,
+      "alpha": 4.458,
+      "tickers": []
+    },
+    {
+      "date": "2025-02-28",
+      "regime_code": 1,
+      "regime_score": 29.9,
+      "equity_alloc": 0.15,
+      "n_stocks": 0,
+      "port_ret": 0.0,
+      "nifty_ret": 0.167,
+      "alpha": -0.167,
+      "tickers": []
+    },
+    {
+      "date": "2025-03-31",
+      "regime_code": 2,
+      "regime_score": 51.0,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": -0.552,
+      "nifty_ret": 2.078,
+      "alpha": -2.629,
+      "tickers": [
+        "HDFCBANK.NS",
+        "ICICIBANK.NS",
+        "JSWSTEEL.NS",
+        "KOTAKBANK.NS",
+        "BAJFINANCE.NS"
+      ]
+    },
+    {
+      "date": "2025-04-30",
+      "regime_code": 2,
+      "regime_score": 49.2,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": -0.008,
+      "nifty_ret": 3.16,
+      "alpha": -3.168,
+      "tickers": [
+        "ICICIBANK.NS",
+        "MARICO.NS",
+        "APOLLOHOSP.NS",
+        "HDFCLIFE.NS",
+        "HDFCBANK.NS"
+      ]
+    },
+    {
+      "date": "2025-05-31",
+      "regime_code": 3,
+      "regime_score": 67.0,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": 1.986,
+      "nifty_ret": 2.443,
+      "alpha": -0.456,
+      "tickers": [
+        "HDFCBANK.NS",
+        "ICICIBANK.NS",
+        "BHARTIARTL.NS",
+        "BAJFINANCE.NS",
+        "BEL.NS"
+      ]
+    },
+    {
+      "date": "2025-06-30",
+      "regime_code": 4,
+      "regime_score": 87.5,
+      "equity_alloc": 0.9,
+      "n_stocks": 15,
+      "port_ret": -3.245,
+      "nifty_ret": -4.521,
+      "alpha": 1.277,
+      "tickers": [
+        "MFSL.NS",
+        "HDFCBANK.NS",
+        "ICICIBANK.NS",
+        "EICHERMOT.NS",
+        "BHARTIARTL.NS"
+      ]
+    },
+    {
+      "date": "2025-07-31",
+      "regime_code": 3,
+      "regime_score": 61.9,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": -0.041,
+      "nifty_ret": 0.827,
+      "alpha": -0.868,
+      "tickers": [
+        "HDFCBANK.NS",
+        "ULTRACEMCO.NS",
+        "ICICIBANK.NS",
+        "INDIGO.NS",
+        "FORTIS.NS"
+      ]
+    },
+    {
+      "date": "2025-08-31",
+      "regime_code": 2,
+      "regime_score": 47.9,
+      "equity_alloc": 0.45,
+      "n_stocks": 5,
+      "port_ret": 1.766,
+      "nifty_ret": 3.515,
+      "alpha": -1.749,
+      "tickers": [
+        "ICICIBANK.NS",
+        "EICHERMOT.NS",
+        "SBIN.NS",
+        "HDFCBANK.NS",
+        "TITAN.NS"
+      ]
+    },
+    {
+      "date": "2025-09-30",
+      "regime_code": 2,
+      "regime_score": 54.4,
+      "equity_alloc": 0.45,
+      "n_stocks": 5,
+      "port_ret": 2.603,
+      "nifty_ret": 3.581,
+      "alpha": -0.977,
+      "tickers": [
+        "HDFCBANK.NS",
+        "SBIN.NS",
+        "HINDALCO.NS",
+        "BANKBARODA.NS",
+        "JSWSTEEL.NS"
+      ]
+    },
+    {
+      "date": "2025-10-31",
+      "regime_code": 3,
+      "regime_score": 66.2,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": 0.612,
+      "nifty_ret": 0.14,
+      "alpha": 0.473,
+      "tickers": [
+        "MARUTI.NS",
+        "LT.NS",
+        "SBIN.NS",
+        "EICHERMOT.NS",
+        "SHRIRAMFIN.NS"
+      ]
+    },
+    {
+      "date": "2025-11-30",
+      "regime_code": 3,
+      "regime_score": 68.2,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": -1.031,
+      "nifty_ret": -1.983,
+      "alpha": 0.952,
+      "tickers": [
+        "SBIN.NS",
+        "AXISBANK.NS",
+        "HDFCBANK.NS",
+        "RELIANCE.NS",
+        "LT.NS"
+      ]
+    },
+    {
+      "date": "2025-12-31",
+      "regime_code": 3,
+      "regime_score": 67.5,
+      "equity_alloc": 0.7,
+      "n_stocks": 10,
+      "port_ret": -0.551,
+      "nifty_ret": -0.744,
+      "alpha": 0.194,
+      "tickers": [
+        "TORNTPHARM.NS",
+        "RELIANCE.NS",
+        "LT.NS",
+        "FEDERALBNK.NS",
+        "SBILIFE.NS"
+      ]
+    },
+    {
+      "date": "2026-01-31",
+      "regime_code": 2,
+      "regime_score": 42.8,
+      "equity_alloc": 0.45,
+      "n_stocks": 5,
+      "port_ret": -3.155,
+      "nifty_ret": -4.183,
+      "alpha": 1.028,
+      "tickers": [
+        "SBIN.NS",
+        "ULTRACEMCO.NS",
+        "HCLTECH.NS",
+        "BAJAJ-AUTO.NS",
+        "NESTLEIND.NS"
+      ]
+    },
+    {
+      "date": "2026-02-28",
+      "regime_code": 2,
+      "regime_score": 43.0,
+      "equity_alloc": 0.45,
+      "n_stocks": 5,
+      "port_ret": -3.242,
+      "nifty_ret": -8.053,
+      "alpha": 4.811,
+      "tickers": [
+        "FEDERALBNK.NS",
+        "JSWSTEEL.NS",
+        "LUPIN.NS",
+        "APOLLOHOSP.NS",
+        "NESTLEIND.NS"
+      ]
+    }
+  ]
+}
