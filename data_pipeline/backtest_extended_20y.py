@@ -257,8 +257,8 @@ def compute_regime_score(nifty, vix, stock_data, as_of, fii_dii_df=None):
             'breadth': round(breadth,1), 'flow': round(flow,1)}
 
 
-def select_stocks_at_date(stock_data, nifty, regime_code, as_of, n_override=None, fund_snapshots=None):
-    n_map  = {4:15, 3:10, 2:5, 1:0, 0:0}
+def select_stocks_at_date(stock_data, nifty, regime_code, as_of, n_override=None, fund_snapshots=None, regime_score=50):
+    n_map  = {4:15, 3:10, 2:10, 1:0, 0:0}
     n_pick = n_override if n_override is not None else n_map.get(regime_code, 0)
     if n_pick == 0: return []
 
@@ -338,6 +338,7 @@ def select_stocks_at_date(stock_data, nifty, regime_code, as_of, n_override=None
             else:
                 earnings_final = earn
 
+            # Score-sensitive factor weights within Neutral
             if regime_code >= 3:   score = mom*0.35 + quality_final*0.15 + lowv*0.15 + earnings_final*0.25 + rs*10*0.10
             elif regime_code == 2: score = mom*0.30 + quality_final*0.20 + lowv*0.25 + earnings_final*0.15 + rs*10*0.10
             else:                  score = mom*0.10 + quality_final*0.30 + lowv*0.45 + earnings_final*0.10 + rs*10*0.05
@@ -402,16 +403,8 @@ def run_walk_forward(nifty, vix, stock_data, n_months=72, fii_dii_df=None, fund_
                 m3b = (float(nc3.iloc[-1])/float(nc3.iloc[-63])-1)*100
                 if m3b > 8.0:
                     eq_alloc = 0.88
-        if code == 2:
-            nc = nifty[nifty.index <= from_date]
-            if len(nc) > 63:
-                m1 = (float(nc.iloc[-1])/float(nc.iloc[-21])-1)*100 if len(nc)>21 else 0
-                m3 = (float(nc.iloc[-1])/float(nc.iloc[-63])-1)*100
-                if m1 > 0.5 or m3 > 3.0:
-                    eq_alloc   = 0.75
-                    n_override = 10
 
-        selected = select_stocks_at_date(stock_data, nifty, code, from_date, n_override, fund_snapshots)
+        selected = select_stocks_at_date(stock_data, nifty, code, from_date, n_override, fund_snapshots, regime_score=score)
         port_ret = compute_monthly_return(selected, stock_data, from_date, to_date,
                                            prev_tickers, eq_alloc)
 

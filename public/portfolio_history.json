@@ -1,0 +1,15 @@
+[
+  {
+    "date": "2026-03-21",
+    "nav": 1000000.0,
+    "total_return_pct": 0.0,
+    "nifty_return_pct": 0.0,
+    "alpha_pct": 0.0,
+    "drawdown_pct": 0.0,
+    "cash_pct": 100.0,
+    "equity_pct": 0.0,
+    "n_positions": 0,
+    "regime_label": "Mild Bear",
+    "regime_score": 25.2
+  }
+]

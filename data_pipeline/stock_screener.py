@@ -57,13 +57,30 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 
 
 # ── REGIME-DEPENDENT STOCK COUNT ──────────────────────────────────────
+# DIAGNOSIS FIX 1: Neutral always uses 5-6 stocks (score-proportional).
+# Previous momentum overlay (10 stocks when Nifty momentum > 0) had
+# -1.01% avg monthly alpha vs +0.06% without it. Removed entirely.
 REGIME_STOCK_COUNT = {
     4: 15,   # Strong Bull  — top 15 stocks
     3: 10,   # Mild Bull    — top 10 stocks
-    2: 5,    # Neutral      — top 5 (high conviction only)
+    2: 5,    # Neutral      — base 5, adjusted by score below
     1: 0,    # Mild Bear    — watchlist only, no deployment
     0: 0,    # Strong Bear  — no stocks
 }
+
+
+def neutral_score_proportional_count(composite_score: float) -> int:
+    """
+    DIAGNOSIS FIX 2: Score-proportional stock count within Neutral (score 40-55).
+    Score 40-45 -> 4 stocks. Score 45-50 -> 5 stocks. Score 50-55 -> 6 stocks.
+    Continuous ramp replaces the binary step that caused -1.01% alpha drag.
+    """
+    if composite_score < 45:
+        return 4
+    elif composite_score < 50:
+        return 5
+    else:
+        return 6
 
 # ── NIFTY 500 SAMPLE UNIVERSE (100 liquid stocks) ─────────────────────
 # Representative cross-section of Nifty 500
@@ -429,11 +446,16 @@ def rank_with_random_forest(factors_df: pd.DataFrame,
     # Regime-adjusted factor weights
     # Bull: momentum + earnings dominate
     # Bear: quality + low-vol dominate
-    # Alt data gets 20% weight — reduces other factors proportionally
+    # DIAGNOSIS FIX 3: Neutral weights overhauled.
+    # Diagnosis showed momentum has ZERO edge in Neutral months (score 48-52).
+    # New Neutral weights: quality-value (high ROE, stable trend) + low-vol dominate.
+    # Momentum reduced from 0.16 to 0.08. Quality + earnings lifted to compensate.
+    # This targets the -2.07% avg alpha in the 48-52 score band (21 of 68 months).
     REGIME_WEIGHTS = {
         4: {'f_momentum_rank': 0.28, 'f_quality_rank': 0.16, 'f_lowvol_rank': 0.12, 'f_earnings_rank': 0.24, 'f_altdata_rank': 0.20},
         3: {'f_momentum_rank': 0.24, 'f_quality_rank': 0.20, 'f_lowvol_rank': 0.16, 'f_earnings_rank': 0.20, 'f_altdata_rank': 0.20},
-        2: {'f_momentum_rank': 0.16, 'f_quality_rank': 0.24, 'f_lowvol_rank': 0.24, 'f_earnings_rank': 0.16, 'f_altdata_rank': 0.20},
+        # Neutral: momentum reduced, quality-value + earnings elevated
+        2: {'f_momentum_rank': 0.08, 'f_quality_rank': 0.32, 'f_lowvol_rank': 0.24, 'f_earnings_rank': 0.16, 'f_altdata_rank': 0.20},
         1: {'f_momentum_rank': 0.08, 'f_quality_rank': 0.28, 'f_lowvol_rank': 0.36, 'f_earnings_rank': 0.08, 'f_altdata_rank': 0.20},
         0: {'f_momentum_rank': 0.08, 'f_quality_rank': 0.28, 'f_lowvol_rank': 0.36, 'f_earnings_rank': 0.08, 'f_altdata_rank': 0.20},
     }
@@ -485,7 +507,11 @@ def build_screener_output(ranked_df: pd.DataFrame,
                            composite_score: float,
                            active_sectors: list) -> dict:
 
-    n_stocks = REGIME_STOCK_COUNT.get(regime_code, 0)
+    # Apply score-proportional count for Neutral regime (diagnosis fix)
+    if regime_code == 2:
+        n_stocks = neutral_score_proportional_count(composite_score)
+    else:
+        n_stocks = REGIME_STOCK_COUNT.get(regime_code, 0)
 
     selected = ranked_df.head(n_stocks) if n_stocks > 0 else pd.DataFrame()
 

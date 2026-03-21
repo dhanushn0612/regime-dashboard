@@ -1,0 +1,29 @@
+{
+  "created_at": "2026-03-21",
+  "capital": 2500000.0,
+  "cash": 2500000.0,
+  "positions": {},
+  "high_water_mark": 2500000.0,
+  "history": [
+    {
+      "date": "2026-03-21",
+      "portfolio_value": 2500000.0,
+      "cash": 2500000.0,
+      "equity_value": 0,
+      "equity_alloc": 0.0,
+      "regime_code": 1,
+      "regime_score": 25.2,
+      "n_positions": 0,
+      "daily_pnl": 0.0,
+      "daily_pnl_pct": 0.0,
+      "total_pnl": 0.0,
+      "total_pnl_pct": 0.0,
+      "drawdown": 0.0
+    }
+  ],
+  "trades": [],
+  "regime_code": 1,
+  "regime_score": 25.2,
+  "last_updated": "2026-03-21",
+  "version": "1.0"
+}

@@ -1,0 +1,48 @@
+{
+  "date": "2026-03-21",
+  "portfolio": {
+    "value": 2500000.0,
+    "cash": 2500000.0,
+    "equity": 0,
+    "equity_pct": 0.0,
+    "positions": 0,
+    "capital": 2500000.0
+  },
+  "pnl": {
+    "today": 0.0,
+    "today_pct": 0.0,
+    "total": 0.0,
+    "total_pct": 0.0,
+    "drawdown": 0.0,
+    "hwm": 2500000.0
+  },
+  "performance": {},
+  "regime": {
+    "code": 1,
+    "score": 25.2,
+    "label": "Strong Bear",
+    "change": -12.8,
+    "breadth": 7
+  },
+  "positions": [],
+  "action_required": true,
+  "days_live": 0,
+  "recent_trades": [],
+  "history_30d": [
+    {
+      "date": "2026-03-21",
+      "portfolio_value": 2500000.0,
+      "cash": 2500000.0,
+      "equity_value": 0,
+      "equity_alloc": 0.0,
+      "regime_code": 1,
+      "regime_score": 25.2,
+      "n_positions": 0,
+      "daily_pnl": 0.0,
+      "daily_pnl_pct": 0.0,
+      "total_pnl": 0.0,
+      "total_pnl_pct": 0.0,
+      "drawdown": 0.0
+    }
+  ]
+}

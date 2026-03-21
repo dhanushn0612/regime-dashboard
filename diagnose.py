@@ -1,19 +1,22 @@
-import os, pickle
+import requests
+from bs4 import BeautifulSoup
 
-script_dir = r"C:\Users\Dhanush\regime-dashboard\data_pipeline"
-cache_path = os.path.join(script_dir, "nifty500_prices.pkl")
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml',
+    'Referer': 'https://www.screener.in/',
+})
 
-print(f"Cache path: {cache_path}")
-print(f"Exists: {os.path.exists(cache_path)}")
+r = session.get('https://www.screener.in/company/TCS/consolidated/', timeout=20)
+print(f"Status: {r.status_code}")
+print(f"URL: {r.url}")
+print(f"Content length: {len(r.text)}")
+print(f"\nFirst 1000 chars:")
+print(r.text[:1000])
 
-if os.path.exists(cache_path):
-    size_mb = os.path.getsize(cache_path) / 1e6
-    print(f"Size: {size_mb:.1f} MB")
-    with open(cache_path, "rb") as f:
-        data = pickle.load(f)
-    print(f"Stocks in cache: {len(data)}")
-    print(f"Sample tickers: {list(data.keys())[:5]}")
-else:
-    print("Cache NOT found - listing data_pipeline contents:")
-    for f in os.listdir(script_dir):
-        print(f"  {f}")
+soup = BeautifulSoup(r.text, 'html.parser')
+tables = soup.find_all('table')
+print(f"\nTables found: {len(tables)}")
+for i, t in enumerate(tables[:3]):
+    print(f"Table {i}: {str(t)[:200]}")

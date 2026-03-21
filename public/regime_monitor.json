@@ -1,0 +1,48 @@
+{
+  "date": "2026-03-21",
+  "score": 12.4,
+  "regime_code": 0,
+  "regime_label": "Strong Bear",
+  "trend": 4,
+  "vola": 29,
+  "breadth": 7,
+  "flow": 11,
+  "nifty_price": 23114.5,
+  "score_change": -12.8,
+  "prev_score": 25.2,
+  "prev_code": 1,
+  "target_equity": 0.0,
+  "current_equity": 0.0,
+  "triggers": {
+    "regime_break": {
+      "triggered": true,
+      "trigger": "regime_break",
+      "severity": "ALERT",
+      "direction": "down",
+      "from_regime": "Mild Bear",
+      "to_regime": "Strong Bear",
+      "message": "Regime crossed from Mild Bear to Strong Bear",
+      "target_equity": 0.0
+    },
+    "score_velocity": {
+      "triggered": true,
+      "trigger": "score_velocity",
+      "severity": "ALERT",
+      "score_now": 12.4,
+      "score_5d_ago": 53.9,
+      "drop": 41.5,
+      "message": "Score dropped 41.5 pts in 5 periods (54 \u2192 12)",
+      "target_equity": 0.0
+    },
+    "breadth_collapse": {
+      "triggered": true,
+      "trigger": "breadth_collapse",
+      "severity": "CRITICAL",
+      "breadth_score": 7,
+      "message": "Breadth collapsed to 7/100 \u2014 internals failing",
+      "target_equity": 0.0,
+      "action": "Reduce equity by 50% immediately"
+    }
+  },
+  "action_required": true
+}

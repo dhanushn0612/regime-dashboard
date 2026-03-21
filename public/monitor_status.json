@@ -1,0 +1,48 @@
+{
+  "date": "2026-03-21",
+  "time": "13:32",
+  "status": "ACTION_REQUIRED",
+  "triggered": true,
+  "n_triggers": 1,
+  "live_scores": {
+    "composite": 16.6,
+    "trend": 4,
+    "volatility": 29,
+    "breadth": 0,
+    "flow": 41,
+    "regime": "Strong Bear",
+    "nifty": 23114.5,
+    "vix": 22.81
+  },
+  "allocation": {
+    "equity_allocation": 0.0,
+    "n_stocks_target": 0,
+    "regime_code": 0,
+    "regime_label": "Strong Bear",
+    "composite_score": 16.6,
+    "note": "Standard Strong Bear allocation."
+  },
+  "triggers": [
+    {
+      "type": "REGIME_BREAK",
+      "severity": "HIGH",
+      "direction": "deterioration",
+      "description": "Regime changed from Mild Bear (25.2) to Strong Bear (16.6)",
+      "from_regime": "Mild Bear",
+      "to_regime": "Strong Bear",
+      "from_score": 25.2,
+      "to_score": 16.6,
+      "action": {
+        "equity_allocation": 0.0,
+        "change_from": 0.15,
+        "change_pct": -15.0,
+        "instruction": "Move to 100% cash. Exit all equity positions. Capital preservation mode."
+      }
+    }
+  ],
+  "position_guidance": {},
+  "prev_regime": {
+    "label": "Mild Bear",
+    "score": 25.2
+  }
+}

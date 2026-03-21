@@ -1,0 +1,54 @@
+{
+  "date": "2026-03-21 14:32",
+  "action_required": true,
+  "triggers_fired": [
+    "breadth_collapse",
+    "regime_break",
+    "score_velocity"
+  ],
+  "worst_severity": "CRITICAL",
+  "primary_message": "Breadth collapsed to 7/100 \u2014 internals failing",
+  "current_equity": 0.0,
+  "target_equity": 0.0,
+  "equity_change": 0.0,
+  "exit_first": [],
+  "keep": [],
+  "trigger_details": [
+    {
+      "triggered": true,
+      "trigger": "breadth_collapse",
+      "severity": "CRITICAL",
+      "breadth_score": 7,
+      "message": "Breadth collapsed to 7/100 \u2014 internals failing",
+      "target_equity": 0.0,
+      "action": "Reduce equity by 50% immediately"
+    },
+    {
+      "triggered": true,
+      "trigger": "regime_break",
+      "severity": "ALERT",
+      "direction": "down",
+      "from_regime": "Mild Bear",
+      "to_regime": "Strong Bear",
+      "message": "Regime crossed from Mild Bear to Strong Bear",
+      "target_equity": 0.0
+    },
+    {
+      "triggered": true,
+      "trigger": "score_velocity",
+      "severity": "ALERT",
+      "score_now": 12.4,
+      "score_5d_ago": 53.9,
+      "drop": 41.5,
+      "message": "Score dropped 41.5 pts in 5 periods (54 \u2192 12)",
+      "target_equity": 0.0
+    }
+  ],
+  "instructions": [
+    "Reduce equity from 0% to 0%",
+    "Exit these positions first: none identified",
+    "Keep defensive positions: all if forced",
+    "Review and execute before market open",
+    "Document the action in your trading log"
+  ]
+}
