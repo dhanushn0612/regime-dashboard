@@ -1,0 +1,28 @@
+{
+  "date": "2026-03-17",
+  "gst": {
+    "latest_month": "Feb-2026",
+    "total_collection_cr": 183646,
+    "yoy_growth_pct": 9.1,
+    "sector_signals": {
+      "Consumer": 60,
+      "Auto": 47,
+      "Manufacturing": 55,
+      "Services_IT": 50,
+      "Infra": 58
+    },
+    "macro_signal": "mild_bullish",
+    "score": 55,
+    "source": "hardcoded_recent"
+  },
+  "fii_dii_days": 1086,
+  "stocks_scored": 80,
+  "top_stocks": [
+    "TITAN.NS",
+    "ASIANPAINT.NS",
+    "DMART.NS",
+    "LT.NS",
+    "POWERGRID.NS"
+  ],
+  "model_used": "no_text"
+}

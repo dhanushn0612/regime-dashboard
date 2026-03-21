@@ -375,6 +375,7 @@ def compute_factors(stock_data: dict, tickers: list,
             'f_quality':          round(quality_composite, 2),
             'f_lowvol':           round(lowvol_composite, 2),
             'f_earnings':         round(earnings_composite, 2),
+            'f_altdata':          50.0,  # Placeholder, filled below
 
             # Helper features
             'trend_consistency':  round(trend_consistency, 2),
@@ -389,8 +390,8 @@ def compute_factors(stock_data: dict, tickers: list,
         return df
 
     # Cross-sectional normalisation: rank each factor 0-100
-    for col in ['f_momentum', 'f_quality', 'f_lowvol', 'f_earnings']:
-        df[f'{col}_rank'] = df[col].rank(pct=True) * 100
+    for col in ['f_momentum', 'f_quality', 'f_lowvol', 'f_earnings', 'f_altdata']:
+        df[col + '_rank'] = df[col].rank(pct=True) * 100
 
     return df
 
@@ -419,6 +420,7 @@ def rank_with_random_forest(factors_df: pd.DataFrame,
     FEATURE_COLS = [
         'f_momentum_rank', 'f_quality_rank',
         'f_lowvol_rank', 'f_earnings_rank',
+        'f_altdata_rank',
         'trend_consistency', 'above_50dma',
         'above_200dma', 'golden_cross', 'vol_trend',
         'rs_vs_nifty_3m',
@@ -427,12 +429,13 @@ def rank_with_random_forest(factors_df: pd.DataFrame,
     # Regime-adjusted factor weights
     # Bull: momentum + earnings dominate
     # Bear: quality + low-vol dominate
+    # Alt data gets 20% weight — reduces other factors proportionally
     REGIME_WEIGHTS = {
-        4: {'f_momentum_rank': 0.35, 'f_quality_rank': 0.20, 'f_lowvol_rank': 0.15, 'f_earnings_rank': 0.30},
-        3: {'f_momentum_rank': 0.30, 'f_quality_rank': 0.25, 'f_lowvol_rank': 0.20, 'f_earnings_rank': 0.25},
-        2: {'f_momentum_rank': 0.20, 'f_quality_rank': 0.30, 'f_lowvol_rank': 0.30, 'f_earnings_rank': 0.20},
-        1: {'f_momentum_rank': 0.10, 'f_quality_rank': 0.35, 'f_lowvol_rank': 0.45, 'f_earnings_rank': 0.10},
-        0: {'f_momentum_rank': 0.10, 'f_quality_rank': 0.35, 'f_lowvol_rank': 0.45, 'f_earnings_rank': 0.10},
+        4: {'f_momentum_rank': 0.28, 'f_quality_rank': 0.16, 'f_lowvol_rank': 0.12, 'f_earnings_rank': 0.24, 'f_altdata_rank': 0.20},
+        3: {'f_momentum_rank': 0.24, 'f_quality_rank': 0.20, 'f_lowvol_rank': 0.16, 'f_earnings_rank': 0.20, 'f_altdata_rank': 0.20},
+        2: {'f_momentum_rank': 0.16, 'f_quality_rank': 0.24, 'f_lowvol_rank': 0.24, 'f_earnings_rank': 0.16, 'f_altdata_rank': 0.20},
+        1: {'f_momentum_rank': 0.08, 'f_quality_rank': 0.28, 'f_lowvol_rank': 0.36, 'f_earnings_rank': 0.08, 'f_altdata_rank': 0.20},
+        0: {'f_momentum_rank': 0.08, 'f_quality_rank': 0.28, 'f_lowvol_rank': 0.36, 'f_earnings_rank': 0.08, 'f_altdata_rank': 0.20},
     }
 
     weights = REGIME_WEIGHTS.get(regime_code, REGIME_WEIGHTS[2])
@@ -630,6 +633,19 @@ def run():
             fundamentals_df = None
 
     # Step 3b: Factor scoring
+    # Load alt data scores from Layer 6
+    alt_scores = {}
+    alt_scores_path = os.path.join(OUTPUT_DIR, 'alt_data_scores.json')
+    if os.path.exists(alt_scores_path):
+        try:
+            with open(alt_scores_path) as f:
+                alt_raw = json.load(f)
+            for ticker, data in alt_raw.get('stocks', {}).items():
+                alt_scores[ticker] = data.get('alt_score', 50.0)
+            print("  Alt data: " + str(len(alt_scores)) + " stocks loaded from Layer 6")
+        except Exception:
+            pass
+
     print("")
     print("Computing factor scores...")
     passing_data = {t: stock_data[t] for t in passing if t in stock_data}
@@ -646,6 +662,16 @@ def run():
         return
 
     print("  Scored " + str(len(factors_df)) + " stocks")
+
+    # Inject alt data scores
+    if alt_scores and not factors_df.empty:
+        factors_df['f_altdata'] = factors_df['ticker'].map(
+            lambda t: alt_scores.get(t, 50.0)
+        )
+        n_with_alt = (factors_df['f_altdata'] != 50.0).sum()
+        print("  Alt data injected: " + str(n_with_alt) + " stocks with real scores")
+    elif not factors_df.empty:
+        factors_df['f_altdata'] = 50.0
 
     # Step 4: Random Forest ranking
     print("")

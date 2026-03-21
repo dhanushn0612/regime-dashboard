@@ -20,13 +20,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install yfinance pandas numpy requests xgboost scikit-learn tradingview-scraper beautifulsoup4 scipy
+          pip install yfinance pandas numpy requests xgboost scikit-learn tradingview-scraper beautifulsoup4 scipy transformers torch --quiet
 
       - name: Run regime classifier
         run: python data_pipeline/run_classifier.py
 
       - name: Run sector rotation engine
         run: python data_pipeline/sector_rotation.py
+
+      - name: Run alternative data engine
+        run: python data_pipeline/alternative_data.py
+        continue-on-error: true
 
       - name: Run stock screener
         run: python data_pipeline/stock_screener.py
@@ -46,6 +50,8 @@ jobs:
           git add public/screener_current.json
           git add public/portfolio_current.json public/portfolio_history.json
           git add public/risk_current.json
+          git add public/alt_data_scores.json public/alt_data_summary.json || true
           git add data_pipeline/fundamental_cache.csv || true
+          git add data_pipeline/fii_dii_data.csv || true
           git diff --staged --quiet || git commit -m "📊 Daily update $(date +'%Y-%m-%d')"
           git push
