@@ -257,7 +257,7 @@ def compute_regime_score(nifty, vix, stock_data, as_of, fii_dii_df=None):
             'breadth': round(breadth,1), 'flow': round(flow,1)}
 
 
-def select_stocks_at_date(stock_data, nifty, regime_code, as_of, n_override=None):
+def select_stocks_at_date(stock_data, nifty, regime_code, as_of, n_override=None, fund_snapshots=None):
     n_map  = {4:15, 3:10, 2:5, 1:0, 0:0}
     n_pick = n_override if n_override is not None else n_map.get(regime_code, 0)
     if n_pick == 0: return []
@@ -314,9 +314,33 @@ def select_stocks_at_date(stock_data, nifty, regime_code, as_of, n_override=None
             lowv = max(0, 100 - vol)
             h52  = s(past.rolling(min(252, len(past))).max().iloc[-1])
             earn = ((s(past.iloc[-1])/h52) - 0.6) * 100
-            if regime_code >= 3:   score = mom*0.40 + earn*0.30 + lowv*0.15 + rs*10*0.15
-            elif regime_code == 2: score = mom*0.35 + earn*0.25 + lowv*0.25 + rs*10*0.15
-            else:                  score = mom*0.15 + earn*0.15 + lowv*0.50 + rs*10*0.20
+            # Get real fundamental scores if available
+            fund_quality = None
+            fund_earnings = None
+            if fund_snapshots is not None and not fund_snapshots.empty:
+                try:
+                    from build_fundamental_snapshots import get_fundamental_scores_at_date
+                    fund_result = get_fundamental_scores_at_date(fund_snapshots, ticker, as_of)
+                    if fund_result.get('has_fundamentals'):
+                        fund_quality  = fund_result['quality_score']
+                        fund_earnings = fund_result['earnings_score']
+                except Exception:
+                    pass
+
+            # Blend real fundamentals with price proxies (70/30 when available)
+            if fund_quality is not None:
+                quality_final = fund_quality * 0.70 + max(0, 100 - vol) * 0.30
+            else:
+                quality_final = max(0, 100 - vol) * 0.5 + (50 if s(past.iloc[-1]) > s(past.rolling(50).mean().iloc[-1]) else 20) * 0.5
+
+            if fund_earnings is not None:
+                earnings_final = fund_earnings * 0.70 + earn * 0.30
+            else:
+                earnings_final = earn
+
+            if regime_code >= 3:   score = mom*0.35 + quality_final*0.15 + lowv*0.15 + earnings_final*0.25 + rs*10*0.10
+            elif regime_code == 2: score = mom*0.30 + quality_final*0.20 + lowv*0.25 + earnings_final*0.15 + rs*10*0.10
+            else:                  score = mom*0.10 + quality_final*0.30 + lowv*0.45 + earnings_final*0.10 + rs*10*0.05
             scores.append((ticker, score))
         except: continue
 
@@ -354,7 +378,7 @@ def compute_monthly_return(tickers, stock_data, from_date, to_date,
     return float(np.mean(clean) * equity_alloc)
 
 
-def run_walk_forward(nifty, vix, stock_data, n_months=72, fii_dii_df=None):
+def run_walk_forward(nifty, vix, stock_data, n_months=72, fii_dii_df=None, fund_snapshots=None):
     print(f"\nRunning {n_months}-month walk-forward backtest...")
     try:    monthly = nifty.resample('ME').last().index
     except: monthly = nifty.resample('M').last().index
@@ -387,7 +411,7 @@ def run_walk_forward(nifty, vix, stock_data, n_months=72, fii_dii_df=None):
                     eq_alloc   = 0.75
                     n_override = 10
 
-        selected = select_stocks_at_date(stock_data, nifty, code, from_date, n_override)
+        selected = select_stocks_at_date(stock_data, nifty, code, from_date, n_override, fund_snapshots)
         port_ret = compute_monthly_return(selected, stock_data, from_date, to_date,
                                            prev_tickers, eq_alloc)
 
@@ -562,6 +586,20 @@ def run():
     print("  " + datetime.today().strftime('%Y-%m-%d %H:%M'))
     print("="*65)
 
+    # Load fundamental snapshots for quality/earnings factors
+    fund_snapshots = None
+    fund_path = os.path.join(SCRIPT_DIR, 'fundamental_snapshots.csv')
+    if os.path.exists(fund_path):
+        try:
+            fund_snapshots = pd.read_csv(fund_path, parse_dates=['snapshot_date'])
+            n_stocks = fund_snapshots['ticker'].nunique()
+            date_range = f"{fund_snapshots['snapshot_date'].min().date()} to {fund_snapshots['snapshot_date'].max().date()}"
+            print(f"  Fundamentals: {n_stocks} stocks, {date_range}")
+        except Exception as e:
+            print(f"  Fundamental load failed: {e}")
+    else:
+        print("  Fundamentals: not found — using price proxies for quality/earnings")
+
     fii_dii_df = None
     fii_path   = os.path.join(SCRIPT_DIR, 'fii_dii_data.csv')
     if os.path.exists(fii_path):
@@ -579,7 +617,7 @@ def run():
         print("  FII/DII: not found — using price proxy for all periods")
 
     nifty, vix, stock_data = download_all_data(lookback_days=7500)
-    df      = run_walk_forward(nifty, vix, stock_data, n_months=240, fii_dii_df=fii_dii_df)
+    df      = run_walk_forward(nifty, vix, stock_data, n_months=240, fii_dii_df=fii_dii_df, fund_snapshots=fund_snapshots)
 
     if df.empty:
         print("  No results generated")
