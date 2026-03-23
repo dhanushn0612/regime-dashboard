@@ -23,7 +23,7 @@
     },
     "volatility": {
       "india_vix": 22.81,
-      "vix_20d_change_pct": 58.86,
+      "vix_20d_change_pct": 58.84,
       "rv_ratio": 1.584,
       "vix_stability_std": 1.681
     },
@@ -40,7 +40,7 @@
       "fii_dii_pts": 8,
       "fii_trend_pts": 15,
       "data_source": "real_nse_fii_dii",
-      "vix_slope_20d": 0.4226
+      "vix_slope_20d": 0.4225
     }
   }
 }

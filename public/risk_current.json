@@ -1,7 +1,7 @@
 {
-  "date": "2026-03-16",
+  "date": "2026-03-23",
   "regime_label": "Mild Bear",
-  "composite_score": 22.0,
+  "composite_score": 25.2,
   "aggregate": {
     "risk_score": 60,
     "max_severity": "ALERT",
@@ -49,12 +49,12 @@
       "rule": "regime_deterioration",
       "triggered": true,
       "severity": "ALERT",
-      "current_score": 22.0,
-      "score_5d_ago": 47.9,
-      "score_change_5d": -25.9,
+      "current_score": 25.2,
+      "score_5d_ago": 53.9,
+      "score_change_5d": -28.7,
       "is_critical": false,
       "is_rapid_drop": true,
-      "message": "Regime: 22.0 (-25.9 in 5 periods) \u2014 RAPID DETERIORATION",
+      "message": "Regime: 25.2 (-28.7 in 5 periods) \u2014 RAPID DETERIORATION",
       "action": "Reduce 30% exposure",
       "size_multiplier": 0.7
     },
@@ -62,18 +62,18 @@
       "rule": "market_anomaly",
       "triggered": "True",
       "severity": "ALERT",
-      "anomaly_score": -0.7324,
+      "anomaly_score": -0.7354,
       "is_anomaly": "True",
-      "most_unusual_dim": "volatility",
-      "z_score": -3.56,
+      "most_unusual_dim": "composite",
+      "z_score": -3.95,
       "z_scores": {
-        "trend": -3.01,
-        "volatility": -3.56,
+        "trend": -3.93,
+        "volatility": -3.28,
         "breadth": 0.0,
-        "flow": -1.57,
-        "composite": -3.21
+        "flow": -1.51,
+        "composite": -3.95
       },
-      "message": "Market ANOMALY DETECTED \u2014 volatility dimension -3.6 std devs from historical mean",
+      "message": "Market ANOMALY DETECTED \u2014 composite dimension -3.9 std devs from historical mean",
       "action": "Reduce 30% exposure",
       "size_multiplier": 0.7
     }
