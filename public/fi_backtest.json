@@ -1,0 +1,68 @@
+{
+  "computed_at": "2026-03-24 10:26",
+  "n_months": 222,
+  "original": {
+    "label": "Strategy (cash=0%)",
+    "total": 801.96,
+    "ann": 12.62,
+    "sharpe": 0.51,
+    "max_dd": -17.78,
+    "calmar": 0.71,
+    "win_rate": 54.5
+  },
+  "fi_adjusted": {
+    "label": "Strategy + FI",
+    "total": 1280.98,
+    "ann": 15.25,
+    "sharpe": 0.7,
+    "max_dd": -16.14,
+    "calmar": 0.94,
+    "win_rate": 72.5
+  },
+  "nifty": {
+    "label": "Nifty",
+    "total": 604.12,
+    "ann": 11.13,
+    "sharpe": 0.29,
+    "max_dd": -66.41,
+    "calmar": 0.17,
+    "win_rate": 59.5
+  },
+  "fi_contribution": {
+    "ann_return_added": 2.63,
+    "sharpe_improvement": 0.19,
+    "calmar_improvement": 0.23
+  },
+  "by_regime": {
+    "Strong Bear": {
+      "months": 9,
+      "avg_cash_pct": 100.0,
+      "avg_fi_annual": 6.43,
+      "instrument": "overnight"
+    },
+    "Mild Bear": {
+      "months": 30,
+      "avg_cash_pct": 85.0,
+      "avg_fi_annual": 5.33,
+      "instrument": "liquid"
+    },
+    "Neutral": {
+      "months": 68,
+      "avg_cash_pct": 40.0,
+      "avg_fi_annual": 2.65,
+      "instrument": "short_duration"
+    },
+    "Mild Bull": {
+      "months": 98,
+      "avg_cash_pct": 17.3,
+      "avg_fi_annual": 1.08,
+      "instrument": "liquid"
+    },
+    "Strong Bull": {
+      "months": 17,
+      "avg_cash_pct": 10.0,
+      "avg_fi_annual": 0.63,
+      "instrument": "liquid"
+    }
+  }
+}
