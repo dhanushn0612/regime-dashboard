@@ -1,16 +1,16 @@
 {
   "date": "2026-03-24",
-  "regime_label": "Strong Bear",
-  "composite_score": 11.6,
+  "regime_label": "Mild Bear",
+  "composite_score": 22.3,
   "aggregate": {
-    "risk_score": 100,
-    "max_severity": "CRITICAL",
-    "color": "#ff2d55",
+    "risk_score": 60,
+    "max_severity": "ALERT",
+    "color": "#ff6b6b",
     "triggered_count": 2,
-    "overall_message": "Critical \u2014 reduce exposure by 50% immediately",
-    "position_size_mult": 0.5,
-    "adjusted_equity_pct": 0.0,
-    "base_equity_pct": 0.0
+    "overall_message": "Alert \u2014 reduce exposure by 30%",
+    "position_size_mult": 0.7,
+    "adjusted_equity_pct": 10.5,
+    "base_equity_pct": 15.0
   },
   "rules": [
     {
@@ -48,15 +48,15 @@
     {
       "rule": "regime_deterioration",
       "triggered": true,
-      "severity": "CRITICAL",
-      "current_score": 11.6,
-      "score_5d_ago": 43.0,
-      "score_change_5d": -31.4,
-      "is_critical": true,
+      "severity": "ALERT",
+      "current_score": 22.3,
+      "score_5d_ago": 52.3,
+      "score_change_5d": -30.0,
+      "is_critical": false,
       "is_rapid_drop": true,
-      "message": "Regime: 11.6 (-31.4 in 5 periods) \u2014 CRITICAL LEVEL",
-      "action": "Reduce 50% exposure",
-      "size_multiplier": 0.5
+      "message": "Regime: 22.3 (-30.0 in 5 periods) \u2014 RAPID DETERIORATION",
+      "action": "Reduce 30% exposure",
+      "size_multiplier": 0.7
     },
     {
       "rule": "market_anomaly",
@@ -65,15 +65,15 @@
       "anomaly_score": -0.7294,
       "is_anomaly": "True",
       "most_unusual_dim": "composite",
-      "z_score": -3.78,
+      "z_score": -3.63,
       "z_scores": {
         "trend": -3.3,
-        "volatility": -3.61,
+        "volatility": -3.28,
         "breadth": 0.0,
         "flow": -2.1,
-        "composite": -3.78
+        "composite": -3.63
       },
-      "message": "Market ANOMALY DETECTED \u2014 composite dimension -3.8 std devs from historical mean",
+      "message": "Market ANOMALY DETECTED \u2014 composite dimension -3.6 std devs from historical mean",
       "action": "Reduce 30% exposure",
       "size_multiplier": 0.7
     }

@@ -1,14 +1,14 @@
 {
   "date": "2026-03-24",
-  "regime_code": 0,
-  "regime_label": "Strong Bear",
-  "composite_score": 11.6,
+  "regime_code": 1,
+  "regime_label": "Mild Bear",
+  "composite_score": 22.3,
   "stocks_screened": 94,
-  "stocks_passed": 46,
+  "stocks_passed": 48,
   "stocks_selected": 0,
   "active_sectors": [],
   "stocks": [],
-  "excluded_count": 48,
+  "excluded_count": 46,
   "status": "watchlist_only",
   "note": "Regime too weak for deployment \u2014 watchlist mode only"
 }

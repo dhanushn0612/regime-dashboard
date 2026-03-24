@@ -1,36 +1,36 @@
 {
-  "date": "2026-03-23",
+  "date": "2026-03-24",
   "trend_score": 6.0,
-  "volatility_score": 11.0,
-  "breadth_score": 0,
+  "volatility_score": 17.0,
+  "breadth_score": 37.0,
   "flow_score": 35.0,
-  "composite_score": 11.6,
-  "regime_label": "Strong Bear",
-  "regime_code": 0,
-  "nifty_price": 22512.65,
-  "india_vix": 26.73,
-  "recommended_action": "Risk-Off \u2014 capital preservation mode",
+  "composite_score": 22.3,
+  "regime_label": "Mild Bear",
+  "regime_code": 1,
+  "nifty_price": 22912.4,
+  "india_vix": 24.74,
+  "recommended_action": "Defensive \u2014 rotate to debt/cash, reduce equity",
   "fii_dii_source": "real_nse_fii_dii",
   "dimension_signals": {
     "trend": {
-      "price_vs_sma50_pct": -10.05,
-      "price_vs_sma200_pct": -10.92,
+      "price_vs_sma50_pct": -8.24,
+      "price_vs_sma200_pct": -9.31,
       "golden_cross": false,
-      "roc_21d_pct": -11.96,
-      "roc_63d_pct": -13.3,
-      "roc_126d_pct": -11.45,
-      "dist_from_52w_high_pct": -14.49
+      "roc_21d_pct": -10.89,
+      "roc_63d_pct": -12.46,
+      "roc_126d_pct": -9.53,
+      "dist_from_52w_high_pct": -12.98
     },
     "volatility": {
-      "india_vix": 26.73,
-      "vix_20d_change_pct": 88.64,
-      "rv_ratio": 1.63,
-      "vix_stability_std": 2.343
+      "india_vix": 24.74,
+      "vix_20d_change_pct": 74.84,
+      "rv_ratio": 1.716,
+      "vix_stability_std": 2.308
     },
     "breadth": {
-      "pct_above_50dma": 12.5,
-      "pct_above_200dma": 25.0,
-      "advance_ratio_pct": 15.0,
+      "pct_above_50dma": 15.0,
+      "pct_above_200dma": 27.5,
+      "advance_ratio_pct": 87.5,
       "stocks_sampled": 40
     },
     "flow": {
@@ -40,7 +40,7 @@
       "fii_dii_pts": 8,
       "fii_trend_pts": 15,
       "data_source": "real_nse_fii_dii",
-      "vix_slope_20d": 0.628
+      "vix_slope_20d": 0.5295
     }
   }
 }
