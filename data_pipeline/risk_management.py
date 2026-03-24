@@ -16,6 +16,10 @@ ML Addition:
   Isolation Forest anomaly detector flags when current market conditions
   are statistically unusual vs historical patterns — early warning system.
 
+FIX APPLIED:
+  - Increased correlation lookback window from 20 days to 65 days to 
+    eliminate statistical noise and false positives in covariance estimation.
+
 Usage:
     python data_pipeline/risk_management.py
 
@@ -304,7 +308,7 @@ def check_correlation_spike(portfolio_data: dict,
     diversification the most. Early detection allows position
     reduction before the correlated drawdown arrives.
 
-    Measurement: average pairwise Pearson correlation over 20 days.
+    Measurement: average pairwise Pearson correlation over 65 days (approx 3 months).
     """
     positions = portfolio_data.get('positions', [])
     tickers   = [p['ticker'] for p in positions if p['ticker'] in price_df.columns]
@@ -318,10 +322,10 @@ def check_correlation_spike(portfolio_data: dict,
             'avg_correlation': 0.0,
         }
 
-    # 20-day rolling correlation
-    returns = price_df[tickers].pct_change().tail(20).dropna()
-    if len(returns) < 10:
-        return {'rule': 'correlation_spike', 'triggered': False, 'severity': 'INFO', 'message': 'Insufficient data', 'avg_correlation': 0.0}
+    # 65-day rolling correlation for statistical stability
+    returns = price_df[tickers].pct_change().tail(65).dropna()
+    if len(returns) < 30:
+        return {'rule': 'correlation_spike', 'triggered': False, 'severity': 'INFO', 'message': 'Insufficient data for correlation', 'avg_correlation': 0.0}
 
     corr_matrix  = returns.corr()
     n = len(tickers)
@@ -581,7 +585,7 @@ def run():
     if tickers:
         print("\nDownloading price data for risk checks...")
         end   = datetime.today()
-        start = end - timedelta(days=90)
+        start = end - timedelta(days=120)  # Extended to accommodate 65-day lookback + weekends/holidays
         prices = {}
         for ticker in tickers:
             try:

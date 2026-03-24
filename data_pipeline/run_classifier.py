@@ -4,6 +4,12 @@ Daily Regime Classifier Runner
 Auto-detects FII/DII data from fii_dii_scraper.py output.
 If fii_dii_data.csv exists → uses real flow data.
 If not → falls back to price-based proxy.
+
+FIXES APPLIED:
+  1. Step functions replaced with continuous interpolation (np.interp)
+     to eliminate regime cliff effects and scoring instability.
+  2. FII/DII flow mathematically normalized against Nifty index levels
+     to remove inflationary market cap bias over the 20-year history.
 """
 
 import os
@@ -82,19 +88,21 @@ class TrendDimension:
         sma50  = close.rolling(50).mean()
         sma200 = close.rolling(200).mean()
 
+        # Continuous interpolation for SMA50 distance
         dist_50 = (s(close.iloc[-1]) - s(sma50.iloc[-1])) / s(sma50.iloc[-1]) * 100
-        pts = 20 if dist_50 > 3 else 14 if dist_50 > 0 else 6 if dist_50 > -3 else 0
+        pts = float(np.interp(dist_50, [-6, -3, 0, 3, 6], [0, 6, 14, 20, 20]))
         total += pts
         signals['price_vs_sma50_pct'] = round(dist_50, 2)
 
+        # Continuous interpolation for SMA200 distance
         dist_200 = (s(close.iloc[-1]) - s(sma200.iloc[-1])) / s(sma200.iloc[-1]) * 100
-        pts = 20 if dist_200 > 5 else 13 if dist_200 > 0 else 5 if dist_200 > -5 else 0
+        pts = float(np.interp(dist_200, [-10, -5, 0, 5, 10], [0, 5, 13, 20, 20]))
         total += pts
         signals['price_vs_sma200_pct'] = round(dist_200, 2)
 
+        # Golden cross remains binary (structural trend indicator)
         golden = s(sma50.iloc[-1]) > s(sma200.iloc[-1])
-        pts = 15 if golden else 0
-        total += pts
+        total += 15 if golden else 0
         signals['golden_cross'] = bool(golden)
 
         def roc(p):
@@ -102,13 +110,14 @@ class TrendDimension:
 
         for p, max_pts, thresh in [(21, 10, 3), (63, 10, 7), (126, 10, 12)]:
             r = roc(p)
-            pts = max_pts if r > thresh else 6 if r > 0 else 2 if r > -thresh else 0
+            pts = float(np.interp(r, [-thresh*2, -thresh, 0, thresh, thresh*2], [0, 2, 6, max_pts, max_pts]))
             total += pts
             signals[f'roc_{p}d_pct'] = round(r, 2)
 
+        # Continuous interpolation for 52W High distance
         high_52w = s(close.rolling(252).max().iloc[-1])
         dist_52w = (s(close.iloc[-1]) / high_52w - 1) * 100
-        pts = 15 if dist_52w > -5 else 10 if dist_52w > -10 else 4 if dist_52w > -20 else 0
+        pts = float(np.interp(dist_52w, [-30, -20, -10, -5, 0], [0, 4, 10, 15, 15]))
         total += pts
         signals['dist_from_52w_high_pct'] = round(dist_52w, 2)
 
@@ -122,14 +131,15 @@ class VolatilityDimension:
         signals = {}
         total = 0.0
 
+        # Continuous interpolation for absolute VIX (inverted: lower VIX = higher score)
         current_vix = s(vix_close.iloc[-1])
-        pts = 35 if current_vix < 13 else 28 if current_vix < 16 else 18 if current_vix < 20 else 10 if current_vix < 25 else 4 if current_vix < 30 else 0
+        pts = float(np.interp(current_vix, [10, 13, 16, 20, 25, 30, 35], [35, 35, 28, 18, 10, 4, 0]))
         total += pts
         signals['india_vix'] = round(current_vix, 2)
 
         if len(vix_close) > 20:
             vix_chg = (s(vix_close.iloc[-1]) / s(vix_close.iloc[-20]) - 1) * 100
-            pts = 20 if vix_chg < -15 else 15 if vix_chg < -5 else 10 if vix_chg < 5 else 4 if vix_chg < 15 else 0
+            pts = float(np.interp(vix_chg, [-20, -15, -5, 5, 15, 20], [20, 20, 15, 10, 4, 0]))
             total += pts
             signals['vix_20d_change_pct'] = round(vix_chg, 2)
 
@@ -137,13 +147,14 @@ class VolatilityDimension:
         rv_20d = s(returns.rolling(20).std().iloc[-1]) * np.sqrt(252) * 100
         rv_1y  = s(returns.rolling(252).std().iloc[-1]) * np.sqrt(252) * 100
         rv_ratio = rv_20d / rv_1y if rv_1y > 0 else 1.0
-        pts = 25 if rv_ratio < 0.7 else 18 if rv_ratio < 0.9 else 12 if rv_ratio < 1.1 else 5 if rv_ratio < 1.4 else 0
+        
+        pts = float(np.interp(rv_ratio, [0.5, 0.7, 0.9, 1.1, 1.4, 1.6], [25, 25, 18, 12, 5, 0]))
         total += pts
         signals['rv_ratio'] = round(rv_ratio, 3)
 
         if len(vix_close) > 10:
             vov = s(vix_close.rolling(10).std().iloc[-1])
-            pts = 20 if vov < 1.0 else 14 if vov < 2.0 else 7 if vov < 3.5 else 0
+            pts = float(np.interp(vov, [0.5, 1.0, 2.0, 3.5, 5.0], [20, 20, 14, 7, 0]))
             total += pts
             signals['vix_stability_std'] = round(vov, 3)
 
@@ -184,15 +195,16 @@ class BreadthDimension:
         p200 = sum(above_200) / n * 100
         adv  = sum(advances)  / n * 100
 
-        pts = 35 if p50 > 70 else 25 if p50 > 55 else 15 if p50 > 40 else 7 if p50 > 30 else 0
+        # Continuous interpolation for Breadth components
+        pts = float(np.interp(p50, [20, 30, 40, 55, 70, 80], [0, 7, 15, 25, 35, 35]))
         total += pts
         signals['pct_above_50dma'] = round(p50, 1)
 
-        pts = 35 if p200 > 65 else 25 if p200 > 50 else 15 if p200 > 35 else 7 if p200 > 25 else 0
+        pts = float(np.interp(p200, [15, 25, 35, 50, 65, 80], [0, 7, 15, 25, 35, 35]))
         total += pts
         signals['pct_above_200dma'] = round(p200, 1)
 
-        pts = 30 if adv > 65 else 22 if adv > 55 else 14 if adv > 45 else 6 if adv > 35 else 0
+        pts = float(np.interp(adv, [25, 35, 45, 55, 65, 75], [0, 6, 14, 22, 30, 30]))
         total += pts
         signals['advance_ratio_pct'] = round(adv, 1)
         signals['stocks_sampled'] = n
@@ -215,14 +227,22 @@ class FlowDimension:
                 fii_5d  = float(fii_dii_df['FII_Net'].tail(5).sum())
                 fii_10d = float(fii_dii_df['FII_Net'].tail(10).sum())
 
-                # FII 20-day rolling net (30 pts)
-                fii_cr = fii_20d / 100  # Already in Crores from NSE
-                pts = 30 if fii_cr > 5000 else 22 if fii_cr > 1000 else 12 if fii_cr > -1000 else 4 if fii_cr > -5000 else 0
+                # Issue #4 FIX: Normalize absolute flow against the index expansion
+                # We use Nifty/10,000 as a proxy for the multiplier effect of market growth
+                current_nifty = s(close.iloc[-1])
+                market_cap_proxy = current_nifty / 10000.0
+
+                fii_cr = fii_20d / 100  # Raw in Crores
+                fii_cr_normalized = fii_cr / market_cap_proxy 
+
+                # Continuous interpolation using normalized FII flow
+                pts = float(np.interp(fii_cr_normalized, [-10000, -5000, -1000, 1000, 5000, 10000], [0, 4, 12, 22, 30, 30]))
                 total += pts
                 signals['fii_20d_net_cr'] = round(fii_cr, 0)
-                signals['fii_flow_pts'] = pts
+                signals['fii_20d_norm_cr'] = round(fii_cr_normalized, 0)
+                signals['fii_flow_pts'] = round(pts, 1)
 
-                # FII vs DII positioning (20 pts)
+                # FII vs DII positioning - structural state, kept discrete
                 pts = 20 if fii_20d > 0 and dii_20d > 0 else \
                       14 if fii_20d > 0 and dii_20d < 0 else \
                        8 if fii_20d < 0 and dii_20d > 0 else 0
@@ -230,7 +250,7 @@ class FlowDimension:
                 signals['dii_20d_net_cr'] = round(dii_20d / 100, 0)
                 signals['fii_dii_pts'] = pts
 
-                # FII momentum — is recent flow accelerating? (15 pts)
+                # FII momentum - structural state, kept discrete
                 pts = 15 if fii_5d > fii_10d / 2 * 1.2 else \
                       10 if fii_5d > 0 else \
                        5 if fii_10d > 0 else 0
@@ -246,10 +266,11 @@ class FlowDimension:
         if fii_dii_df is None or len(fii_dii_df) < 20:
             r5d = (s(close.iloc[-1]) / s(close.iloc[-5]) - 1) * 100
             v5d = (s(vix_close.iloc[-1]) / s(vix_close.iloc[-5]) - 1) * 100
-            pts = 65 if r5d > 1 and v5d < -5 else \
-                  48 if r5d > 0 and v5d < 0 else \
-                  30 if r5d > 0 else \
-                  18 if v5d < 0 else 5
+            
+            # Smooth interpolation for the proxy
+            pts = float(np.interp(r5d, [-3, 0, 3], [0, 20, 40])) + float(np.interp(v5d, [-10, 0, 10], [25, 10, 0]))
+            pts = min(65, max(0, pts)) # Cap at max 65 pts for this component
+            
             total += pts
             signals['data_source'] = 'price_proxy'
             signals['note'] = 'Run fii_dii_scraper.py to unlock real flow data'
@@ -257,7 +278,7 @@ class FlowDimension:
         # ── VIX SLOPE SENTIMENT (35 pts — always active) ──────────────
         if len(vix_close) > 20:
             slope = (s(vix_close.iloc[-1]) - s(vix_close.iloc[-20])) / 20
-            pts = 35 if slope < -0.2 else 25 if slope < 0 else 15 if slope < 0.2 else 6 if slope < 0.5 else 0
+            pts = float(np.interp(slope, [-0.4, -0.2, 0, 0.2, 0.5, 0.8], [35, 35, 25, 15, 6, 0]))
             total += pts
             signals['vix_slope_20d'] = round(slope, 4)
 

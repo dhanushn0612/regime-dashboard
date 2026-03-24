@@ -159,10 +159,13 @@ def ledoit_wolf_covariance(returns: pd.DataFrame) -> np.ndarray:
     Formula: Sigma_LW = (1 - alpha) * Sigma_sample + alpha * Sigma_target
     where alpha is determined analytically by minimising MSE.
     """
+    # Use mean imputation instead of filling with 0 to prevent zero-variance distortion
+    clean_returns = returns.fillna(returns.mean()).fillna(0) 
+    
     try:
         from sklearn.covariance import LedoitWolf
         lw = LedoitWolf()
-        lw.fit(returns.fillna(0))
+        lw.fit(clean_returns)
         cov = lw.covariance_
         shrinkage = lw.shrinkage_
         print(f"  Ledoit-Wolf shrinkage: {shrinkage:.3f}")
@@ -171,7 +174,7 @@ def ledoit_wolf_covariance(returns: pd.DataFrame) -> np.ndarray:
     except ImportError:
         # Fallback: manual shrinkage toward identity
         print("  scikit-learn not available — using manual shrinkage")
-        S = returns.fillna(0).cov().values
+        S = clean_returns.cov().values
         n = S.shape[0]
         mu = np.trace(S) / n
         alpha = 0.2  # 20% shrinkage
@@ -185,17 +188,8 @@ def compute_expected_returns(screener_data: dict,
     """
     Compute expected returns for each stock.
 
-    Institutional approach: blend multiple return estimates
-      1. Historical momentum (3M return, annualised)
-      2. ML score scaled to return space
-      3. Mean-reversion adjustment (mild)
-
-    The ML score from Layer 3 is a rank (0-100), not a return forecast.
-    We convert it to expected return using a simple linear scaling:
-      expected_return = base_return + ml_score_premium
-
-    This is called a "score-to-return" transformation, standard in
-    quantitative factor investing (see Grinold & Kahn, "Active Portfolio Management").
+    Institutional approach: blend multiple return estimates safely scaled.
+    Both momentum and ML scores are converted to bounded annual premiums.
     """
     stocks = screener_data.get('stocks', [])
     if not stocks:
@@ -209,30 +203,28 @@ def compute_expected_returns(screener_data: dict,
             continue
 
         close = price_df[ticker].dropna()
-        if len(close) < 63:
+        if len(close) < 126:  # Need 6 months of data for mean reversion
             continue
 
-        # Component 1: 3-month momentum (annualised)
-        mom_3m = (s(close.iloc[-1]) / s(close.iloc[-63]) - 1)
-        mom_ann = (1 + mom_3m) ** 4 - 1  # Annualise quarterly return
+        # Component 1: Momentum premium from Layer 3 factor score (0-100)
+        # Scale 0-100 score to a bounded ±12% annual premium
+        mom_score = stock.get('f_momentum', 50)
+        mom_premium = (mom_score - 50) / 50 * 0.12  
 
         # Component 2: ML score premium
-        # Scale ML score (0-100) to return premium (-2% to +8%)
+        # Scale ML score (0-100) to a bounded ±8% annual premium
         ml_score = stock.get('ml_score', 50)
-        ml_premium = (ml_score - 50) / 50 * 0.08  # ±8% max premium
+        ml_premium = (ml_score - 50) / 50 * 0.08  
 
         # Component 3: Mild mean reversion (IC-weighted)
-        # Stocks that have run very far revert slightly
-        ret_6m = stock.get('ret_6m', 0) / 100
-        mean_rev = -0.05 * ret_6m  # 5% pull-back on 6M return
+        # Safely calculate 6M return from the price dataframe and cap it at ±50%
+        ret_6m = (s(close.iloc[-1]) / s(close.iloc[-126]) - 1)
+        mean_rev = -0.05 * np.clip(ret_6m, -0.50, 0.50)  
 
         # Blend with IC weights
-        # IC (information coefficient) weights: momentum 0.4, ML 0.4, MR 0.2
-        expected_ret = (
-            mom_ann   * 0.40 +
-            ml_premium * 0.40 +
-            mean_rev  * 0.20
-        )
+        # Base expected market return (10%) + the factor premiums
+        base_market_ret = 0.10
+        expected_ret = base_market_ret + (mom_premium * 0.40) + (ml_premium * 0.40) + (mean_rev * 0.20)
 
         expected_rets[ticker] = expected_ret
 
