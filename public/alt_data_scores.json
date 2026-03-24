@@ -1,5 +1,5 @@
 {
-  "date": "2026-03-23",
+  "date": "2026-03-24",
   "stocks": {
     "HDFCBANK.NS": {
       "ticker": "HDFCBANK.NS",
@@ -13,7 +13,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "RELIANCE.NS": {
       "ticker": "RELIANCE.NS",
@@ -27,7 +27,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "LT.NS": {
       "ticker": "LT.NS",
@@ -41,7 +41,7 @@
       "promoter_signal": "neutral",
       "gst_score": 58,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "ICICIBANK.NS": {
       "ticker": "ICICIBANK.NS",
@@ -55,7 +55,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BHARTIARTL.NS": {
       "ticker": "BHARTIARTL.NS",
@@ -69,7 +69,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "MARUTI.NS": {
       "ticker": "MARUTI.NS",
@@ -83,7 +83,7 @@
       "promoter_signal": "neutral",
       "gst_score": 47,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "SBIN.NS": {
       "ticker": "SBIN.NS",
@@ -97,7 +97,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "INFY.NS": {
       "ticker": "INFY.NS",
@@ -111,7 +111,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "ITC.NS": {
       "ticker": "ITC.NS",
@@ -125,7 +125,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "AXISBANK.NS": {
       "ticker": "AXISBANK.NS",
@@ -139,7 +139,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "KOTAKBANK.NS": {
       "ticker": "KOTAKBANK.NS",
@@ -153,7 +153,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "HINDALCO.NS": {
       "ticker": "HINDALCO.NS",
@@ -167,7 +167,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TCS.NS": {
       "ticker": "TCS.NS",
@@ -181,7 +181,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TATASTEEL.NS": {
       "ticker": "TATASTEEL.NS",
@@ -195,7 +195,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "ULTRACEMCO.NS": {
       "ticker": "ULTRACEMCO.NS",
@@ -209,7 +209,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BAJFINANCE.NS": {
       "ticker": "BAJFINANCE.NS",
@@ -223,7 +223,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "POWERGRID.NS": {
       "ticker": "POWERGRID.NS",
@@ -237,7 +237,7 @@
       "promoter_signal": "neutral",
       "gst_score": 58,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "VEDL.NS": {
       "ticker": "VEDL.NS",
@@ -251,7 +251,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "NTPC.NS": {
       "ticker": "NTPC.NS",
@@ -265,7 +265,7 @@
       "promoter_signal": "neutral",
       "gst_score": 58,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "DIXON.NS": {
       "ticker": "DIXON.NS",
@@ -279,7 +279,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BANDHANBNK.NS": {
       "ticker": "BANDHANBNK.NS",
@@ -293,7 +293,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "EICHERMOT.NS": {
       "ticker": "EICHERMOT.NS",
@@ -307,7 +307,7 @@
       "promoter_signal": "neutral",
       "gst_score": 47,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BPCL.NS": {
       "ticker": "BPCL.NS",
@@ -321,7 +321,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "COALINDIA.NS": {
       "ticker": "COALINDIA.NS",
@@ -335,7 +335,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "ONGC.NS": {
       "ticker": "ONGC.NS",
@@ -349,7 +349,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "IOC.NS": {
       "ticker": "IOC.NS",
@@ -363,7 +363,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BAJAJ-AUTO.NS": {
       "ticker": "BAJAJ-AUTO.NS",
@@ -377,7 +377,7 @@
       "promoter_signal": "neutral",
       "gst_score": 47,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "HCLTECH.NS": {
       "ticker": "HCLTECH.NS",
@@ -391,7 +391,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TRENT.NS": {
       "ticker": "TRENT.NS",
@@ -405,7 +405,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "CUMMINSIND.NS": {
       "ticker": "CUMMINSIND.NS",
@@ -419,7 +419,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "ADANIPORTS.NS": {
       "ticker": "ADANIPORTS.NS",
@@ -433,7 +433,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "CHOLAFIN.NS": {
       "ticker": "CHOLAFIN.NS",
@@ -447,7 +447,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "MUTHOOTFIN.NS": {
       "ticker": "MUTHOOTFIN.NS",
@@ -461,7 +461,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "SUNPHARMA.NS": {
       "ticker": "SUNPHARMA.NS",
@@ -475,7 +475,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "HINDUNILVR.NS": {
       "ticker": "HINDUNILVR.NS",
@@ -489,7 +489,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TITAN.NS": {
       "ticker": "TITAN.NS",
@@ -503,7 +503,7 @@
       "promoter_signal": "neutral",
       "gst_score": 60,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "COFORGE.NS": {
       "ticker": "COFORGE.NS",
@@ -517,7 +517,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "ASHOKLEY.NS": {
       "ticker": "ASHOKLEY.NS",
@@ -531,7 +531,7 @@
       "promoter_signal": "neutral",
       "gst_score": 47,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BAJAJFINSV.NS": {
       "ticker": "BAJAJFINSV.NS",
@@ -545,7 +545,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "APOLLOHOSP.NS": {
       "ticker": "APOLLOHOSP.NS",
@@ -559,7 +559,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "FEDERALBNK.NS": {
       "ticker": "FEDERALBNK.NS",
@@ -573,7 +573,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "VBL.NS": {
       "ticker": "VBL.NS",
@@ -587,7 +587,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "POLYCAB.NS": {
       "ticker": "POLYCAB.NS",
@@ -601,7 +601,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TATAPOWER.NS": {
       "ticker": "TATAPOWER.NS",
@@ -615,7 +615,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "JSWSTEEL.NS": {
       "ticker": "JSWSTEEL.NS",
@@ -629,7 +629,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "AMBUJACEM.NS": {
       "ticker": "AMBUJACEM.NS",
@@ -643,7 +643,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TECHM.NS": {
       "ticker": "TECHM.NS",
@@ -657,7 +657,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "PNB.NS": {
       "ticker": "PNB.NS",
@@ -671,7 +671,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "IDFCFIRSTB.NS": {
       "ticker": "IDFCFIRSTB.NS",
@@ -685,7 +685,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "RECLTD.NS": {
       "ticker": "RECLTD.NS",
@@ -699,7 +699,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BANKBARODA.NS": {
       "ticker": "BANKBARODA.NS",
@@ -713,7 +713,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "PFC.NS": {
       "ticker": "PFC.NS",
@@ -727,7 +727,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "INDUSINDBK.NS": {
       "ticker": "INDUSINDBK.NS",
@@ -741,7 +741,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "WIPRO.NS": {
       "ticker": "WIPRO.NS",
@@ -755,7 +755,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "ASIANPAINT.NS": {
       "ticker": "ASIANPAINT.NS",
@@ -769,7 +769,7 @@
       "promoter_signal": "neutral",
       "gst_score": 60,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "HEROMOTOCO.NS": {
       "ticker": "HEROMOTOCO.NS",
@@ -783,7 +783,7 @@
       "promoter_signal": "neutral",
       "gst_score": 47,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "GODREJCP.NS": {
       "ticker": "GODREJCP.NS",
@@ -797,7 +797,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "SAIL.NS": {
       "ticker": "SAIL.NS",
@@ -811,7 +811,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "LTTS.NS": {
       "ticker": "LTTS.NS",
@@ -825,7 +825,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "ABB.NS": {
       "ticker": "ABB.NS",
@@ -839,7 +839,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "SIEMENS.NS": {
       "ticker": "SIEMENS.NS",
@@ -853,7 +853,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "KPITTECH.NS": {
       "ticker": "KPITTECH.NS",
@@ -867,7 +867,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BRITANNIA.NS": {
       "ticker": "BRITANNIA.NS",
@@ -881,7 +881,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "INDHOTEL.NS": {
       "ticker": "INDHOTEL.NS",
@@ -895,7 +895,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "MOTHERSON.NS": {
       "ticker": "MOTHERSON.NS",
@@ -909,7 +909,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "CIPLA.NS": {
       "ticker": "CIPLA.NS",
@@ -923,7 +923,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "AUROPHARMA.NS": {
       "ticker": "AUROPHARMA.NS",
@@ -937,7 +937,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "HDFCLIFE.NS": {
       "ticker": "HDFCLIFE.NS",
@@ -951,7 +951,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "SBILIFE.NS": {
       "ticker": "SBILIFE.NS",
@@ -965,7 +965,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TORNTPHARM.NS": {
       "ticker": "TORNTPHARM.NS",
@@ -979,7 +979,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TATAELXSI.NS": {
       "ticker": "TATAELXSI.NS",
@@ -993,7 +993,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "DIVISLAB.NS": {
       "ticker": "DIVISLAB.NS",
@@ -1007,7 +1007,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "TATACONSUM.NS": {
       "ticker": "TATACONSUM.NS",
@@ -1021,7 +1021,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "DRREDDY.NS": {
       "ticker": "DRREDDY.NS",
@@ -1035,7 +1035,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "IRFC.NS": {
       "ticker": "IRFC.NS",
@@ -1049,7 +1049,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "BHARATFORG.NS": {
       "ticker": "BHARATFORG.NS",
@@ -1063,7 +1063,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "DMART.NS": {
       "ticker": "DMART.NS",
@@ -1077,7 +1077,7 @@
       "promoter_signal": "neutral",
       "gst_score": 60,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "GAIL.NS": {
       "ticker": "GAIL.NS",
@@ -1091,7 +1091,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "PERSISTENT.NS": {
       "ticker": "PERSISTENT.NS",
@@ -1105,7 +1105,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     },
     "MARICO.NS": {
       "ticker": "MARICO.NS",
@@ -1119,7 +1119,7 @@
       "promoter_signal": "neutral",
       "gst_score": 55,
       "n_announcements": 0,
-      "updated_at": "2026-03-23"
+      "updated_at": "2026-03-24"
     }
   },
   "gst": {
