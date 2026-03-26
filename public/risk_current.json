@@ -1,5 +1,5 @@
 {
-  "date": "2026-03-25",
+  "date": "2026-03-26",
   "regime_label": "Mild Bear",
   "composite_score": 22.3,
   "aggregate": {
@@ -62,16 +62,16 @@
       "rule": "market_anomaly",
       "triggered": "True",
       "severity": "ALERT",
-      "anomaly_score": -0.7294,
+      "anomaly_score": -0.7278,
       "is_anomaly": "True",
       "most_unusual_dim": "composite",
-      "z_score": -3.63,
+      "z_score": -3.62,
       "z_scores": {
-        "trend": -3.3,
-        "volatility": -3.28,
+        "trend": -3.28,
+        "volatility": -3.3,
         "breadth": 0.0,
-        "flow": -2.1,
-        "composite": -3.63
+        "flow": -2.08,
+        "composite": -3.62
       },
       "message": "Market ANOMALY DETECTED \u2014 composite dimension -3.6 std devs from historical mean",
       "action": "Reduce 30% exposure",
