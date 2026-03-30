@@ -1,47 +1,47 @@
 {
-  "date": "2026-03-25",
-  "trend_score": 15.8,
-  "volatility_score": 22.8,
-  "breadth_score": 45.0,
-  "flow_score": 44.7,
-  "composite_score": 30.6,
-  "regime_label": "Mild Bear",
-  "regime_code": 1,
-  "nifty_price": 23306.45,
-  "india_vix": 24.64,
-  "recommended_action": "Defensive \u2014 rotate to debt/cash, reduce equity",
+  "date": "2026-03-27",
+  "trend_score": 11.7,
+  "volatility_score": 18.7,
+  "breadth_score": 13.0,
+  "flow_score": 42.1,
+  "composite_score": 19.8,
+  "regime_label": "Strong Bear",
+  "regime_code": 0,
+  "nifty_price": 22819.6,
+  "india_vix": 26.8,
+  "recommended_action": "Risk-Off \u2014 capital preservation mode",
   "fii_dii_source": "real_nse_fii_dii",
   "dimension_signals": {
     "trend": {
-      "price_vs_sma50_pct": -6.48,
-      "price_vs_sma200_pct": -7.72,
+      "price_vs_sma50_pct": -8.22,
+      "price_vs_sma200_pct": -9.61,
       "golden_cross": false,
-      "roc_21d_pct": -8.33,
-      "roc_63d_pct": -10.97,
-      "roc_126d_pct": -7.52,
-      "dist_from_52w_high_pct": -11.48
+      "roc_21d_pct": -10.45,
+      "roc_63d_pct": -12.71,
+      "roc_126d_pct": -9.34,
+      "dist_from_52w_high_pct": -13.33
     },
     "volatility": {
-      "india_vix": 24.64,
-      "vix_20d_change_pct": 82.65,
-      "rv_ratio": 1.809,
-      "vix_stability_std": 2.381
+      "india_vix": 26.8,
+      "vix_20d_change_pct": 105.21,
+      "rv_ratio": 1.83,
+      "vix_stability_std": 2.681
     },
     "breadth": {
       "pct_above_50dma": 15.0,
-      "pct_above_200dma": 35.0,
-      "advance_ratio_pct": 92.5,
+      "pct_above_200dma": 32.5,
+      "advance_ratio_pct": 15.0,
       "stocks_sampled": 40
     },
     "flow": {
       "fii_20d_net_cr": -66.0,
-      "fii_20d_norm_cr": -28.0,
+      "fii_20d_norm_cr": -29.0,
       "fii_flow_pts": 16.9,
       "dii_20d_net_cr": 384.0,
       "fii_dii_pts": 8,
       "fii_trend_pts": 15,
       "data_source": "real_nse_fii_dii",
-      "vix_slope_20d": 0.5575
+      "vix_slope_20d": 0.687
     }
   }
 }

@@ -1,15 +1,15 @@
 {
-  "date": "2026-03-27",
-  "regime_code": 1,
-  "regime_label": "Mild Bear",
-  "composite_score": 30.6,
-  "equity_allocation": 0.15,
-  "cash_allocation": 0.85,
-  "rebalance_needed": false,
-  "rebalance_reason": "No rebalance needed \u2014 regime stable, no significant drift",
+  "date": "2026-03-30",
+  "regime_code": 0,
+  "regime_label": "Strong Bear",
+  "composite_score": 19.8,
+  "equity_allocation": 0.0,
+  "cash_allocation": 1.0,
+  "rebalance_needed": true,
+  "rebalance_reason": "Regime changed from 1 to 0",
   "positions": [],
   "analytics": {},
   "transaction_costs": {},
   "status": "cash_mode",
-  "note": "Regime too weak (Mild Bear) \u2014 holding cash"
+  "note": "Regime too weak (Strong Bear) \u2014 holding cash"
 }
