@@ -1,5 +1,5 @@
 {
-  "date": "2026-03-21",
+  "date": "2026-04-05",
   "portfolio": {
     "value": 2500000.0,
     "cash": 2500000.0,
@@ -16,7 +16,14 @@
     "drawdown": 0.0,
     "hwm": 2500000.0
   },
-  "performance": {},
+  "performance": {
+    "cagr": 0.0,
+    "sharpe": 0,
+    "max_dd": 0.0,
+    "win_rate": 0.0,
+    "days_live": 15,
+    "total_ret": 0.0
+  },
   "regime": {
     "code": 1,
     "score": 25.2,
@@ -26,11 +33,26 @@
   },
   "positions": [],
   "action_required": true,
-  "days_live": 0,
+  "days_live": 15,
   "recent_trades": [],
   "history_30d": [
     {
       "date": "2026-03-21",
+      "portfolio_value": 2500000.0,
+      "cash": 2500000.0,
+      "equity_value": 0,
+      "equity_alloc": 0.0,
+      "regime_code": 1,
+      "regime_score": 25.2,
+      "n_positions": 0,
+      "daily_pnl": 0.0,
+      "daily_pnl_pct": 0.0,
+      "total_pnl": 0.0,
+      "total_pnl_pct": 0.0,
+      "drawdown": 0.0
+    },
+    {
+      "date": "2026-04-05",
       "portfolio_value": 2500000.0,
       "cash": 2500000.0,
       "equity_value": 0,

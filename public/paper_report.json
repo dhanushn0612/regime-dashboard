@@ -1,6 +1,6 @@
 {
-  "date": "2026-03-21",
-  "generated_at": "2026-03-21 14:33",
+  "date": "2026-04-05",
+  "generated_at": "2026-04-05 00:05",
   "portfolio": {
     "value": 2500000.0,
     "cash": 2500000.0,
@@ -17,7 +17,14 @@
     "drawdown": 0.0,
     "hwm": 2500000.0
   },
-  "performance": {},
+  "performance": {
+    "cagr": 0.0,
+    "sharpe": 0,
+    "max_dd": 0.0,
+    "win_rate": 0.0,
+    "days_live": 15,
+    "total_ret": 0.0
+  },
   "regime": {
     "code": 1,
     "score": 25.2,
@@ -82,5 +89,5 @@
     ]
   },
   "recent_trades": [],
-  "days_live": 0
+  "days_live": 15
 }

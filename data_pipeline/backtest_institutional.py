@@ -72,21 +72,66 @@ def get_close(df): return df['Close'].iloc[:, 0].squeeze() if isinstance(df['Clo
 def download_data():
     print("Downloading historical data...")
     end = datetime.today()
-    start = end - timedelta(days=7500) # ~20 years
-    nifty = yf.download("^NSEI", start=start, end=end, progress=False, auto_adjust=True)
-    vix = yf.download("^INDIAVIX", start=start, end=end, progress=False, auto_adjust=True)
-    
-    nifty_close = get_close(nifty)
-    vix_close = get_close(vix) if len(vix) > 0 else pd.Series(dtype=float)
+    start = end - timedelta(days=7500)
+
+    def safe_download(ticker):
+        for attempt in range(3):
+            try:
+                df = yf.download(ticker, start=start, end=end,
+                                 progress=False, auto_adjust=True)
+                if len(df) > 100:
+                    c = get_close(df)
+                    # Ensure DatetimeIndex
+                    c.index = pd.to_datetime(c.index)
+                    return c
+            except Exception as e:
+                print(f"  Attempt {attempt+1} failed for {ticker}: {e}")
+        return pd.Series(dtype=float)
+
+    nifty_close = safe_download("^NSEI")
+    if len(nifty_close) < 100:
+        nifty_close = safe_download("NSEI.NS")
+    if len(nifty_close) < 100:
+        # Last resort: reconstruct Nifty from backtest_results.json monthly returns
+        bt_path = os.path.join(OUTPUT_DIR, 'backtest_results.json')
+        if os.path.exists(bt_path):
+            import json
+            with open(bt_path) as f:
+                bt = json.load(f)
+            # Build daily Nifty series by compounding monthly returns
+            monthly_data = bt.get('monthly', [])
+            if monthly_data:
+                dates, prices = [], []
+                price = 5000.0
+                for m in monthly_data:
+                    dates.append(pd.Timestamp(m['date']))
+                    price *= (1 + m['nifty_ret'] / 100)
+                    prices.append(price)
+                nifty_close = pd.Series(prices, index=pd.DatetimeIndex(dates))
+                print(f"  Nifty: {len(nifty_close)} months (from backtest cache)")
+    print(f"  Nifty: {len(nifty_close)} days")
+
+    vix_close = safe_download("^INDIAVIX")
+    print(f"  VIX:   {len(vix_close)} days")
 
     # Load Nifty 500 for Part 2
     stock_data = {}
     pkl_path = os.path.join(SCRIPT_DIR, 'nifty500_prices.pkl')
     if os.path.exists(pkl_path):
-        with open(pkl_path, 'rb') as f: stock_data = pickle.load(f)
+        with open(pkl_path, 'rb') as f:
+            raw = pickle.load(f)
+        # Ensure all price series have DatetimeIndex
+        for tk, series in raw.items():
+            try:
+                s = series.copy()
+                s.index = pd.to_datetime(s.index)
+                stock_data[tk] = s
+            except Exception:
+                pass
+        print(f"  Nifty 500 cache: {len(stock_data)} stocks")
     else:
         print("  WARNING: nifty500_prices.pkl not found. Part 2 will be skipped.")
-        
+
     return nifty_close, vix_close, stock_data
 
 # ── REGIME MODEL ───────────────────────────────────────────────────────
@@ -109,10 +154,13 @@ def compute_regime_score(nifty, vix, as_of):
     # 2. Vola (Simplified proxy)
     vola = 50
     try:
-        vc = vix[vix.index <= as_of].tail(20)
-        if len(vc) > 0:
-            cv = float(vc.iloc[-1])
-            vola = 100 if cv < 15 else 75 if cv < 18 else 50 if cv < 22 else 25 if cv < 28 else 0
+        if len(vix) > 0:
+            vix_dt = vix.copy()
+            vix_dt.index = pd.to_datetime(vix_dt.index)
+            vc = vix_dt[vix_dt.index <= pd.Timestamp(as_of)].tail(20)
+            if len(vc) > 0:
+                cv = float(vc.iloc[-1])
+                vola = 100 if cv < 15 else 75 if cv < 18 else 50 if cv < 22 else 25 if cv < 28 else 0
     except: pass
 
     # Combine (Using Trend and Vol for this simulation)
@@ -124,8 +172,16 @@ def compute_regime_score(nifty, vix, as_of):
 # ── PART 1: INDEX ONLY BACKTEST (18 YEARS) ─────────────────────────────
 def run_part1_index_only(nifty, vix, n_months=222):
     print(f"\nRunning PART 1: 18-Year Regime Stress Test (Index Only)...")
-    try: monthly = nifty.resample('ME').last().index
-    except: monthly = nifty.resample('M').last().index
+    # Ensure DatetimeIndex before resampling
+    nifty = nifty.copy()
+    nifty.index = pd.to_datetime(nifty.index)
+    try:
+        monthly = nifty.resample('ME').last().index
+    except Exception:
+        try:
+            monthly = nifty.resample('M').last().index
+        except Exception:
+            monthly = nifty.resample('MS').last().index
     monthly = monthly[-(n_months + 2):]
 
     results = []
@@ -172,8 +228,16 @@ def run_part2_nifty500(nifty, vix, stock_data, n_months=60):
     print(f"\nRunning PART 2: 5-Year Live Alpha Generation (Nifty 500)...")
     if not stock_data: return pd.DataFrame()
     
-    try: monthly = nifty.resample('ME').last().index
-    except: monthly = nifty.resample('M').last().index
+    # Ensure DatetimeIndex before resampling
+    nifty = nifty.copy()
+    nifty.index = pd.to_datetime(nifty.index)
+    try:
+        monthly = nifty.resample('ME').last().index
+    except Exception:
+        try:
+            monthly = nifty.resample('M').last().index
+        except Exception:
+            monthly = nifty.resample('MS').last().index
     monthly = monthly[-(n_months + 2):]
 
     results = []
@@ -284,29 +348,34 @@ def print_institutional_report(m1, m2):
     print(f"\n{sep}")
     print("  INSTITUTIONAL REGIME PMS BACKTEST REPORT")
     print(sep)
+
+    if not m1:
+        print("\n  PART 1: No data — Nifty download failed.")
+        print("  Run backtest_extended_20y.py first to cache Nifty data,")
+        print("  or wait for yfinance rate limit to clear and retry.")
+    else:
+        print("\n  PART 1: ASSET ALLOCATION STRESS TEST (18 Years)")
+        print("  Methodology: Regime Model dynamically allocating between Nifty 50 Index & Cash")
+        print("  Survivorship Bias: 0.0% (Index Constituents Only)")
+        print("  -----------------------------------------------------------------")
+        print(f"  Period:           {m1.get('months','?')} months")
+        print(f"  Strategy CAGR:    {m1.get('port_ann',0)*100:.1f}%")
+        print(f"  Nifty CAGR:       {m1.get('nifty_ann',0)*100:.1f}%")
+        print(f"  Strategy Max DD:  {m1.get('max_dd',0)*100:.1f}%  <--- Core Value Prop")
+        print(f"  Nifty Max DD:     {m1.get('nifty_dd',0)*100:.1f}%")
+        print(f"  Sharpe Ratio:     {m1.get('sharpe',0):.2f}")
     
-    print("\n  PART 1: ASSET ALLOCATION STRESS TEST (18 Years)")
-    print("  Methodology: Regime Model dynamically allocating between Nifty 50 Index & Cash")
-    print("  Survivorship Bias: 0.0% (Index Constituents Only)")
-    print("  -----------------------------------------------------------------")
-    print(f"  Period:           {m1['months']} months")
-    print(f"  Strategy CAGR:    {m1['port_ann']*100:.1f}%")
-    print(f"  Nifty CAGR:       {m1['nifty_ann']*100:.1f}%")
-    print(f"  Strategy Max DD:  {m1['max_dd']*100:.1f}%  <--- Core Value Prop")
-    print(f"  Nifty Max DD:     {m1['nifty_dd']*100:.1f}%")
-    print(f"  Sharpe Ratio:     {m1['sharpe']:.2f}")
-    
-    if m2:
+    if m2 and m2.get('months'):
         print("\n\n  PART 2: SECURITY SELECTION ALPHA TEST (5 Years)")
         print("  Methodology: Regime Model + ML Stock Screener (Nifty 500 Universe)")
         print("  Survivorship Bias: Statistically Negligible over 5-yr window")
         print("  -----------------------------------------------------------------")
-        print(f"  Period:           {m2['months']} months (2021-2026)")
-        print(f"  Strategy CAGR:    {m2['port_ann']*100:.1f}%")
-        print(f"  Nifty CAGR:       {m2['nifty_ann']*100:.1f}%")
-        print(f"  Annual Alpha:     {m2['alpha_ann']*100:+.1f}%  <--- Stock Picking Edge")
-        print(f"  Strategy Max DD:  {m2['max_dd']*100:.1f}%")
-        print(f"  Sharpe Ratio:     {m2['sharpe']:.2f}")
+        print(f"  Period:           {m2.get('months','?')} months (2021-2026)")
+        print(f"  Strategy CAGR:    {m2.get('port_ann',0)*100:.1f}%")
+        print(f"  Nifty CAGR:       {m2.get('nifty_ann',0)*100:.1f}%")
+        print(f"  Annual Alpha:     {m2.get('alpha_ann',0)*100:+.1f}%  <--- Stock Picking Edge")
+        print(f"  Strategy Max DD:  {m2.get('max_dd',0)*100:.1f}%")
+        print(f"  Sharpe Ratio:     {m2.get('sharpe',0):.2f}")
     print(sep + "\n")
 
 # ── MAIN ───────────────────────────────────────────────────────────────
@@ -321,11 +390,22 @@ def run():
     
     print_institutional_report(m1, m2)
     
+    # Use previously saved results if this run had no Nifty data
+    if not m1 or not m1.get('months'):
+        bt_json_path = os.path.join(OUTPUT_DIR, 'institutional_backtest.json')
+        if os.path.exists(bt_json_path):
+            import json as _json
+            with open(bt_json_path) as f:
+                prev = _json.load(f)
+            if prev.get('part1_metrics', {}).get('months'):
+                print("  Using previously saved Part 1 metrics (Nifty download unavailable)")
+                m1 = prev['part1_metrics']
+
     output = {
         'run_date': datetime.today().strftime('%Y-%m-%d'),
         'version': 'institutional_two_part',
-        'part1_metrics': m1,
-        'part2_metrics': m2
+        'part1_metrics': m1 or {},
+        'part2_metrics': m2 or {}
     }
     with open(BT_OUT, 'w') as f:
         json.dump(output, f, indent=2, default=str)
