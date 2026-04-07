@@ -1,8 +1,8 @@
 {
-  "date": "2026-04-06",
+  "date": "2026-04-07",
   "regime_code": 1,
   "regime_label": "Mild Bear",
-  "composite_score": 27.7,
+  "composite_score": 31.2,
   "sectors_held": 0,
   "allocations": [],
   "excluded_sectors": [
@@ -10,117 +10,117 @@
       "sector": "IT",
       "reasons": [
         "below 50 DMA",
-        "relative strength -7.5% vs Nifty"
+        "relative strength -7.0% vs Nifty"
       ],
-      "ret_1m": 0.56,
+      "ret_1m": 1.09,
       "above_50dma": false
     },
     {
       "sector": "Bank",
       "reasons": [
         "below 50 DMA",
-        "1M return -13.9%",
+        "1M return -10.5%",
         "cyclical in bear regime (1)"
       ],
-      "ret_1m": -13.86,
+      "ret_1m": -10.46,
       "above_50dma": false
     },
     {
       "sector": "Auto",
       "reasons": [
         "below 50 DMA",
-        "1M return -12.5%",
+        "1M return -9.4%",
         "cyclical in bear regime (1)"
       ],
-      "ret_1m": -12.53,
+      "ret_1m": -9.37,
       "above_50dma": false
     },
     {
       "sector": "Pharma",
       "reasons": [
         "below 50 DMA",
-        "1M return -5.0%"
+        "1M return -3.7%"
       ],
-      "ret_1m": -5.0,
+      "ret_1m": -3.69,
       "above_50dma": false
     },
     {
       "sector": "FMCG",
       "reasons": [
         "below 50 DMA",
-        "1M return -8.9%"
+        "1M return -6.4%"
       ],
-      "ret_1m": -8.91,
+      "ret_1m": -6.42,
       "above_50dma": false
     },
     {
       "sector": "Metal",
       "reasons": [
         "below 50 DMA",
-        "1M return -6.6%",
+        "1M return -1.7%",
         "cyclical in bear regime (1)"
       ],
-      "ret_1m": -6.63,
+      "ret_1m": -1.67,
       "above_50dma": false
     },
     {
       "sector": "Energy",
       "reasons": [
         "below 50 DMA",
-        "1M return -3.2%",
+        "1M return -0.6%",
         "cyclical in bear regime (1)"
       ],
-      "ret_1m": -3.17,
+      "ret_1m": -0.56,
       "above_50dma": false
     },
     {
       "sector": "Realty",
       "reasons": [
         "below 50 DMA",
-        "1M return -12.5%",
+        "1M return -7.7%",
         "cyclical in bear regime (1)",
-        "relative strength -10.9% vs Nifty"
+        "relative strength -8.9% vs Nifty"
       ],
-      "ret_1m": -12.49,
+      "ret_1m": -7.67,
       "above_50dma": false
     },
     {
       "sector": "Infra",
       "reasons": [
         "below 50 DMA",
-        "1M return -7.4%",
+        "1M return -4.9%",
         "cyclical in bear regime (1)"
       ],
-      "ret_1m": -7.4,
+      "ret_1m": -4.93,
       "above_50dma": false
     },
     {
       "sector": "Media",
       "reasons": [
         "below 50 DMA",
-        "1M return -6.3%",
+        "1M return -3.5%",
         "cyclical in bear regime (1)"
       ],
-      "ret_1m": -6.26,
+      "ret_1m": -3.52,
       "above_50dma": false
     },
     {
       "sector": "PSU Bank",
       "reasons": [
         "below 50 DMA",
-        "1M return -15.6%",
+        "1M return -10.8%",
         "cyclical in bear regime (1)"
       ],
-      "ret_1m": -15.61,
+      "ret_1m": -10.76,
       "above_50dma": false
     },
     {
       "sector": "Consumption",
       "reasons": [
         "below 50 DMA",
-        "1M return -7.3%"
+        "1M return -4.8%"
       ],
-      "ret_1m": -7.27,
+      "ret_1m": -4.76,
       "above_50dma": false
     }
   ],

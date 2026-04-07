@@ -1,15 +1,15 @@
 {
-  "date": "2026-04-06",
+  "date": "2026-04-07",
   "regime_label": "Mild Bear",
-  "composite_score": 27.7,
+  "composite_score": 31.2,
   "aggregate": {
-    "risk_score": 60,
-    "max_severity": "ALERT",
-    "color": "#ff6b6b",
-    "triggered_count": 1,
-    "overall_message": "Alert \u2014 reduce exposure by 30%",
-    "position_size_mult": 0.7,
-    "adjusted_equity_pct": 10.5,
+    "risk_score": 0,
+    "max_severity": "INFO",
+    "color": "#00c896",
+    "triggered_count": 0,
+    "overall_message": "All clear \u2014 no risk rules triggered",
+    "position_size_mult": 1.0,
+    "adjusted_equity_pct": 15.0,
     "base_equity_pct": 15.0
   },
   "rules": [
@@ -48,34 +48,34 @@
     {
       "rule": "regime_deterioration",
       "triggered": false,
-      "severity": "WARN",
-      "current_score": 27.7,
-      "score_5d_ago": 41.9,
-      "score_change_5d": -14.2,
+      "severity": "INFO",
+      "current_score": 31.2,
+      "score_5d_ago": 36.4,
+      "score_change_5d": -5.2,
       "is_critical": false,
       "is_rapid_drop": false,
-      "message": "Regime: 27.7 (-14.2 in 5 periods)",
-      "action": "Review positions",
+      "message": "Regime: 31.2 (-5.2 in 5 periods)",
+      "action": "Monitor",
       "size_multiplier": 1.0
     },
     {
       "rule": "market_anomaly",
-      "triggered": "True",
-      "severity": "ALERT",
-      "anomaly_score": -0.6568,
-      "is_anomaly": "True",
+      "triggered": "False",
+      "severity": "INFO",
+      "anomaly_score": -0.6076,
+      "is_anomaly": "False",
       "most_unusual_dim": "volatility",
-      "z_score": -3.24,
+      "z_score": -2.63,
       "z_scores": {
-        "trend": -1.17,
-        "volatility": -3.24,
+        "trend": -1.09,
+        "volatility": -2.63,
         "breadth": 0.0,
-        "flow": -0.98,
-        "composite": -2.2
+        "flow": -1.49,
+        "composite": -1.99
       },
-      "message": "Market ANOMALY DETECTED \u2014 volatility dimension -3.2 std devs from historical mean",
-      "action": "Reduce 30% exposure",
-      "size_multiplier": 0.7
+      "message": "Market normal \u2014 volatility dimension -2.6 std devs from historical mean",
+      "action": "Monitor",
+      "size_multiplier": 1.0
     }
   ],
   "thresholds": {

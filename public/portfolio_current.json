@@ -1,8 +1,8 @@
 {
-  "date": "2026-04-06",
+  "date": "2026-04-07",
   "regime_code": 1,
   "regime_label": "Mild Bear",
-  "composite_score": 27.7,
+  "composite_score": 31.2,
   "equity_allocation": 0.15,
   "cash_allocation": 0.85,
   "rebalance_needed": false,
