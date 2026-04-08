@@ -2,9 +2,9 @@
   "date": "2026-04-06",
   "trend_score": 13.8,
   "volatility_score": 25.6,
-  "breadth_score": 43.0,
+  "breadth_score": 41.0,
   "flow_score": 49.4,
-  "composite_score": 31.2,
+  "composite_score": 30.7,
   "regime_label": "Mild Bear",
   "regime_code": 1,
   "nifty_price": 22968.25,
@@ -28,9 +28,9 @@
       "vix_stability_std": 1.644
     },
     "breadth": {
-      "pct_above_50dma": 12.5,
-      "pct_above_200dma": 32.5,
-      "advance_ratio_pct": 92.5,
+      "pct_above_50dma": 17.5,
+      "pct_above_200dma": 30.0,
+      "advance_ratio_pct": 77.5,
       "stocks_sampled": 40
     },
     "flow": {
