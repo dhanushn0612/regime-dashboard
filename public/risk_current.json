@@ -1,7 +1,7 @@
 {
-  "date": "2026-04-08",
+  "date": "2026-04-09",
   "regime_label": "Mild Bear",
-  "composite_score": 30.7,
+  "composite_score": 36.2,
   "aggregate": {
     "risk_score": 0,
     "max_severity": "INFO",
@@ -49,12 +49,12 @@
       "rule": "regime_deterioration",
       "triggered": false,
       "severity": "INFO",
-      "current_score": 30.7,
-      "score_5d_ago": 35.9,
-      "score_change_5d": -5.2,
+      "current_score": 36.2,
+      "score_5d_ago": 39.6,
+      "score_change_5d": -3.4,
       "is_critical": false,
       "is_rapid_drop": false,
-      "message": "Regime: 30.7 (-5.2 in 5 periods)",
+      "message": "Regime: 36.2 (-3.4 in 5 periods)",
       "action": "Monitor",
       "size_multiplier": 1.0
     },
@@ -62,18 +62,18 @@
       "rule": "market_anomaly",
       "triggered": "False",
       "severity": "INFO",
-      "anomaly_score": -0.6076,
+      "anomaly_score": -0.6141,
       "is_anomaly": "False",
       "most_unusual_dim": "volatility",
-      "z_score": -2.63,
+      "z_score": -2.52,
       "z_scores": {
-        "trend": -1.09,
-        "volatility": -2.63,
+        "trend": -1.05,
+        "volatility": -2.52,
         "breadth": 0.0,
-        "flow": -1.49,
-        "composite": -1.99
+        "flow": -1.03,
+        "composite": -1.86
       },
-      "message": "Market normal \u2014 volatility dimension -2.6 std devs from historical mean",
+      "message": "Market normal \u2014 volatility dimension -2.5 std devs from historical mean",
       "action": "Monitor",
       "size_multiplier": 1.0
     }
